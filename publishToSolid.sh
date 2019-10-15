@@ -104,8 +104,6 @@ then
 	# delete public/logo.svg
 
 	upload indexSmartdownRoot.html index.html
-	exit
-
 	upload public/folder1/folder2/Nested.md
 	upload public/D3.md
 	upload public/Graphviz.md
