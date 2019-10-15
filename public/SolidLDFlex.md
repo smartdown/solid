@@ -135,7 +135,7 @@ this.depend = function() {
 
 ---
 
-The source for this [Smartdown](https://smartdown.io) card is available at https://smartdown.solid.community/public/SolidLDFlex.md and via [GitHub](https://github.com/smartdown/solid/public/SolidLDFlex.md).
+The source for this [Smartdown](https://smartdown.io) card is available at https://smartdown.solid.community/public/SolidLDFlex.md and via [GitHub](https://github.com/smartdown/solid/blob/master/public/SolidLDFlex.md).
 
 ---
 

@@ -127,7 +127,7 @@ this.depend = async function() {
 
 ---
 
-The source for this [Smartdown](https://smartdown.io) card is available at https://smartdown.solid.community/public/SolidLDFlexContainer.md and via [GitHub](https://github.com/smartdown/solid/public/SolidLDFlexContainer.md).
+The source for this [Smartdown](https://smartdown.io) card is available at https://smartdown.solid.community/public/SolidLDFlexContainer.md and via [GitHub](https://github.com/smartdown/solid/blob/master/public/SolidLDFlexContainer.md).
 
 ---
 

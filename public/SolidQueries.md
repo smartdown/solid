@@ -129,7 +129,7 @@ The above example uses the latest (v1.9.1) Comunica Sparql client (`comunica-bro
 
 ---
 
-The source for this [Smartdown](https://smartdown.io) card is available at https://smartdown.solid.community/public/SolidQueries.md and via [GitHub](https://github.com/smartdown/solid/public/SolidQueries.md).
+The source for this [Smartdown](https://smartdown.io) card is available at https://smartdown.solid.community/public/SolidQueries.md and via [GitHub](https://github.com/smartdown/solid/blob/master/public/SolidQueries.md).
 
 ---
 

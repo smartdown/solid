@@ -113,7 +113,7 @@ function draw() {
 
 ---
 
-The source for this [Smartdown](https://smartdown.io) card is available at https://smartdown.solid.community/public/P5JS.md and via [GitHub](https://github.com/smartdown/solid/public/P5JS.md).
+The source for this [Smartdown](https://smartdown.io) card is available at https://smartdown.solid.community/public/P5JS.md and via [GitHub](https://github.com/smartdown/solid/blob/master/public/P5JS.md).
 
 ---
 
