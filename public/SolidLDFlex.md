@@ -17,23 +17,24 @@ I'm going to use a Smartdown variable called `person` that will be initialized t
 
 The following playable will initialize `person` to my WebID and will `dependOn` this variable so that if the reader changes it, the playable will *react* and fetch the new data.
 
+Click on `DoctorBud`, `RubenVerborgh` or type in your own WebID to perform the query.
+
+
 ```javascript /playable/autoplay
-//smartdown.import=https://cdn.jsdelivr.net/npm/solid-auth-client@2.3.0/dist-lib/solid-auth-client.bundle.js
+//smartdown.import=https://cdn.jsdelivr.net/npm/solid-auth-client/dist-lib/solid-auth-client.bundle.js
 //smartdown.import=https://cdn.jsdelivr.net/npm/@solid/query-ldflex@2.5.1/dist/solid-query-ldflex.bundle.js
 
 smartdown.setVariable('person', 'https://doctorbud.solid.community/profile/card#me');
 smartdown.setVariable('current', 'NotLoggedInToSolid');
 
 if (typeof solid.data.user !== 'undefined') {
-  (async function() {
-    try {
-      const current = `${await solid.data.user}`;
-      smartdown.setVariable('current', current);
-    }
-    catch (e) {
-      console.log(e);
-    }
-  })();
+  try {
+    const current = `${await solid.data.user}`;
+    smartdown.setVariable('current', current);
+  }
+  catch (e) {
+    console.log(e);
+  }
 }
 
 

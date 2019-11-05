@@ -20,8 +20,10 @@ Because Smartdown uses `XMLHttpRequest` to load its documents, a Smartdown proje
 
 With Solid, I can store and edit the Smartdown docs in the context of Solid's POD and Data Browser, and I can host the viewer web app in Solid. More importantly, I can store data in the POD that can be accessed and visualized by Smartdown playables. For examples of Solid-specific Smartdown usage, see:
 
+- [Querying Solid in Smartdown with Comunica](:@/public/SolidQueries.md)
 - [Smartdown using Solid via LDFlex](:@/public/SolidLDFlex.md)
 - [Smartdown/Solid Container Navigation](:@/public/SolidLDFlexContainer.md)
+- [Creating, Modifying, Deleting Solid Objects in Smartdown](:@/public/SolidLDFlexMutation.md)
 
 
 #### Source for this project
@@ -50,17 +52,5 @@ Smartdown allows us to have a card-at-a-time view (similar to Hypercard), but al
 [DoctorBud Home](:@https://doctorbud.solid.community/public/Home.md)
 
 
-#### Testing writability from authorized WebIDs
 
-Following the instructions in [Web Access Control Specification](https://github.com/solid/web-access-control-spec), I've granted write access to WebID https://doctorbud.solid.community/profile/card#me and want this user to be able to write into `/public` or its subdirectories.
-
-This particular line of Home.md doc was modified by `doctorbud`, even though the POD is owned by `smartdown`. ... **https://doctorbud.solid.community/profile/card#me was here**
-
-#### Playing with RDF, LDFlex and More
-
-- [LDFlex and Containers](:@/public/SolidLDFlexContainer.md)
-- [LDFlex](:@/public/SolidLDFlex.md)
-- [Queries](:@/public/SolidQueries.md)
-
----
 ---

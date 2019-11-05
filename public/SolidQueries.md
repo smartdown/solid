@@ -1,4 +1,4 @@
-### Smartdown, Solid, and Sparqlines
+### Querying Solid in Smartdown with Comunica
 
 *Smartdown is a Markdown-compatible language for authoring interactive documents. It resembles Jupyter, but has a version-compatible source format, and requires no server to remain interactive. Good for experimenting with, integrating and discussing other technology*.
 
@@ -10,13 +10,13 @@ In [Smartdown using Solid via LDFlex](:/public/SolidLDFlex.md), we showed how th
 
 In the first example below, we want to find the members of the Beatles by using the `<http://dbpedia.org/ontology/formerBandMember>` predicate, using `<http://dbpedia.org/resource/The_Beatles>` as subject. We'll also capture the names of the band members via `<http://www.w3.org/2000/01/rdf-schema#label>`, as well as their birth date via `<http://dbpedia.org/ontology/birthDate>`. The results will be displayed in a simple markdown table.
 
-FYI, cdt = *C*omunica *D*BPedia *T*PF in some of the identifiers below, meaning that we are using [Comunica Sparql 1.9.1](https://github.com/comunica/comunica/tree/master/packages/actor-init-sparql#readme), targeting [DBPedia 2016-04](https://fragments.dbpedia.org/2016-04/en), via its [Triple Pattern Fragment](https://linkeddatafragments.org/in-depth/#tpf) endpoint.
+FYI, cdt = *C*omunica *D*BPedia *T*PF in some of the identifiers below, meaning that we are using [Comunica-browser](https://rdf.js.org/comunica-browser/), targeting [DBPedia 2016-04](https://fragments.dbpedia.org/2016-04/en), via its [Triple Pattern Fragment](https://linkeddatafragments.org/in-depth/#tpf) endpoint.
 
-We are using Comunica v1.9.1 via [githack.com](https://rawcdn.githack.com/rdfjs/comunica-browser/6e039533038a46155512bc50b5c8a59294a0a0d7/versions/1.9.1/packages/actor-init-sparql-file/comunica-browser.js).
+We are using Comunica's latest version via [https://rdf.js.org/comunica-browser/versions/**latest**/packages/actor-init-sparql/comunica-browser.js](https://rdf.js.org/comunica-browser/versions/latest/packages/actor-init-sparql/comunica-browser.js).
 
 
 ```javascript /playable/autoplay
-//smartdown.import=https://rawcdn.githack.com/rdfjs/comunica-browser/6e039533038a46155512bc50b5c8a59294a0a0d7/versions/1.9.1/packages/actor-init-sparql/comunica-browser.js
+//smartdown.import=https://rdf.js.org/comunica-browser/versions/latest/packages/actor-init-sparql/comunica-browser.js
 
 let query =
 `
@@ -27,27 +27,27 @@ SELECT ?beatle ?label ?birthDate WHERE {
 }
 `;
 
-function trace(message, data ) {
+function trace(message, data) {
   console.log('Comunica trace', message, data);
 }
 
-function debug(message, data ) {
+function debug(message, data) {
   console.log('Comunica debug', message, data);
 }
 
-function info(message, data ) {
+function info(message, data) {
   console.log('Comunica info', message, data);
 }
 
-function warn(message, data ) {
+function warn(message, data) {
   console.log('Comunica warn', message, data);
 }
 
-function error(message, data ) {
+function error(message, data) {
   console.log('Comunica error', message, data);
 }
 
-function fatal(message, data ) {
+function fatal(message, data) {
   console.log('Comunica fatal', message, data);
 }
 

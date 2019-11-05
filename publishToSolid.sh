@@ -104,6 +104,7 @@ then
 	# delete public/logo.svg
 
 	upload indexSmartdownRoot.html index.html
+	upload public/login/index.html
 	upload public/folder1/folder2/Nested.md
 	upload public/D3.md
 	upload public/Graphviz.md
@@ -115,6 +116,7 @@ then
 	upload README.md public/README.md
 	upload public/SolidLDFlex.md
 	upload public/SolidLDFlexContainer.md
+	upload public/SolidLDFlexMutation.md
 	upload public/SolidQueries.md
 	upload public/smartdown/index_solid.html public/smartdown/index.html
 	upload ../dokieli/indexoverview.html public/dokieli/index.html

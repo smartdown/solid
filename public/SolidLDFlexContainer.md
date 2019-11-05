@@ -29,15 +29,13 @@ smartdown.setVariable('current', '');
 smartdown.setVariable('person', 'https://smartdown.solid.community/profile/card#me');
 
 if (typeof solid.data.user !== 'undefined') {
-  (async function() {
-    try {
-      const current = `${await solid.data.user}`;
-      smartdown.setVariable('current', current);
-    }
-    catch (e) {
-      console.log(e);
-    }
-  })();
+  try {
+    const current = `${await solid.data.user}`;
+    smartdown.setVariable('current', current);
+  }
+  catch (e) {
+    console.log(e);
+  }
 }
 ```
 
