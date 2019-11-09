@@ -2,9 +2,7 @@
 
 In [Smartdown using Solid via LDFlex](:@/public/SolidLDFlex.md) and [Smartdown/Solid Container Navigation](:@/public/SolidLDFlexContainer.md) we explored some of the *read-only* possibilities using Smartdown, Solid, Sparql, and LDFlex. Here in this document, we'll look at the possibilities and mechanisms we can use to perform the other CRUD operations.
 
-In theory, any person viewing this document should be able to perform the operations of Deleting, Creating, and Adding edges to the resource [/public/scratch/example.ttl](https://doctorbud.solid.community/public/scratch/example.ttl). This is because I adjusted the ACL for `/public/scratch` to enable Everyone to read/write/update the contents of that directory.
-
-What I *wanted* to do, but could not get Solid to perform, was to ensure that only modifications originating from this page's URL would be accepted. I think there may be a deficiency in the Node Solid Server, or in my understanding of the intended access control semantics. In the meantime, this demo works fine by enabling anyone (whether logged in or not) to play with this trivial example.
+In theory, any person viewing this document via https://smartdown.solid.community should be able to perform the operations of Deleting, Creating, and Adding edges to the resource [/public/scratch/example.ttl](https://doctorbud.solid.community/public/scratch/example.ttl). This is because I adjusted the ACL for `/public/scratch` to so that https://smartdown.solid.community is considered an Owner (in the `:ReadWriteControl` category of the `.acl`), with Read, Write and Control permissions.
 
 ##### References
 
