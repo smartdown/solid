@@ -115,7 +115,7 @@ this.log(JSON.stringify(result, null, 2));
 
 const resourceId = 'https://doctorbud.solid.community/public/scratch/example.ttl';
 
-async function createEmptyDocument(location) {
+async function deleteDocument(location) {
   const options = {
     body: '',
     // Make sure to include credentials with the request, set by solid-auth-client:
@@ -125,7 +125,7 @@ async function createEmptyDocument(location) {
     },
     method: 'DELETE',
   };
-  const response = await fetch(location, options);
+  const response = await solid.auth.fetch(location, options);
   return {
     status: response.status,
     statusText: response.statusText,
@@ -133,7 +133,7 @@ async function createEmptyDocument(location) {
   };
 };
 
-const result = await createEmptyDocument(resourceId);
+const result = await deleteDocument(resourceId);
 console.log('result', result);
 smartdown.setVariable('DeletionResult', result);
 
@@ -160,7 +160,7 @@ async function createEmptyDocument(location) {
     },
     method: 'PUT',
   };
-  const response = await fetch(location, options);
+  const response = await solid.auth.fetch(location, options);
 
 
   return {
@@ -170,13 +170,14 @@ async function createEmptyDocument(location) {
   };
 };
 
-  const result = await createEmptyDocument(resourceId);
-  console.log('result', result);
-  smartdown.setVariable('CreationResult', result);
+const result = await createEmptyDocument(resourceId);
+console.log('result', result);
+smartdown.setVariable('CreationResult', result);
 
 ```
 
 [Creation Result](:!CreationResult|json)
+
 
 ### Add some edges to our object
 
