@@ -4,7 +4,7 @@
 
 Solid complements Smartdown nicely, by providing a *place* and an authentication scheme to enable controlled access (read and write) to this data.
 
-In [Smartdown using Solid via LDFlex](:/public/SolidLDFlex.md), we showed how the LDFlex capability could be used to query RDF data sources in a mostly-obvious pattern. In [LDF Demo](:@/public/SolidLDFlex.md), we see how client-side Sparql libraries can be used to query LDF servers. In [Inline Playables](:@/public/Inlines.md), we showed how any Smartdown playable can be rendered *inline* with its adjacent text in the same way that a Smartdown *cell* would be, enabling [sparklines](https://en.wikipedia.org/wiki/Sparkline), as well as other possibilities.
+In [Smartdown using Solid via LDFlex](:@/public/SolidLDFlex.md), we showed how the LDFlex capability could be used to query RDF data sources in a mostly-obvious pattern. In [LDF Demo](:@/public/SolidLDFlex.md), we see how client-side Sparql libraries can be used to query LDF servers. In [Inline Playables](:@/public/Inlines.md), we showed how any Smartdown playable can be rendered *inline* with its adjacent text in the same way that a Smartdown *cell* would be, enabling [sparklines](https://en.wikipedia.org/wiki/Sparkline), as well as other possibilities.
 
 ### List the Beatles
 
@@ -62,7 +62,7 @@ const logger = {
 
 const httpProxyHandler = {
   getProxy: function getProxy(request) {
-    request.input = request.input.replace('http://fragments.dbpedia.org', 'https://fragments.dbpedia.org');
+    request.input = request.input.replace('https://fragments.dbpedia.org', 'https://fragments.dbpedia.org');
     return request;
   },
 };
@@ -121,7 +121,7 @@ Comunica.newEngine().query(
 
 The above example uses the latest (v1.9.1) Comunica Sparql client (`comunica-browser.js`) to query the DBPedia TPF endpoint. The following links perform this same query via different means.
 
-[Direct TPF Query](http://fragments.dbpedia.org/2016-04/en?subject=http%3A%2F%2Fdbpedia.org%2Fresource%2FThe_Beatles&predicate=http%3A%2F%2Fdbpedia.org%2Fontology%2FformerBandMember&object=)
+[Direct TPF Query](https://fragments.dbpedia.org/2016-04/en?subject=http%3A%2F%2Fdbpedia.org%2Fresource%2FThe_Beatles&predicate=http%3A%2F%2Fdbpedia.org%2Fontology%2FformerBandMember&object=)
 
 [pre-Comunica Sparql Query](http://client.linkeddatafragments.org/#datasources=http%3A%2F%2Ffragments.dbpedia.org%2F2016-04%2Fen&query=SELECT%20%3Flabel%20WHERE%20%7B%0A%20%20%3Chttp%3A%2F%2Fdbpedia.org%2Fresource%2FThe_Beatles%3E%20%3Chttp%3A%2F%2Fdbpedia.org%2Fontology%2FformerBandMember%3E%20%3Fbeatle%20.%0A%20%20%3Fbeatle%20%3Chttp%3A%2F%2Fwww.w3.org%2F2000%2F01%2Frdf-schema%23label%3E%20%3Flabel.%0A%7D)
 
