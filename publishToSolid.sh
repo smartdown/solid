@@ -103,6 +103,11 @@ then
 	# delete public/logo.png
 	# delete public/logo.svg
 
+	upload public/exolve/exolve-m.js
+	upload public/SolidCrossword.md
+	upload public/Home.md
+	exit
+
 	upload indexSmartdownRoot.html index.html
 	upload public/login/index.html
 	upload public/folder1/folder2/Nested.md

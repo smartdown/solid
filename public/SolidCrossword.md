@@ -3,8 +3,8 @@
 I've been wanting to add Crossword puzzles to Smartdown, and the idea of using [Solid]() as a way to persist a single-user crossword session and to enable multi-participant crossword puzzles via Solid seemed very easy after my experiments with [SolidLDFlexMutation](:@/public/SolidLDFlexMutation.md). So this weekend in November, 2019, I decided to see how far I could get.
 
 I looked around for existing crossword puzzle Javascript libraries that might be applicable to my needs, and came up with:
-- https://github.com/viresh-ratnakar/exolve
-- (unused) https://github.com/zetter/react-crossword
+- [exolve](https://github.com/viresh-ratnakar/exolve)
+- (unused here) [react-crossword](https://github.com/zetter/react-crossword)
 
 I really like the simple UI and vanilla Javascript nature of exolve, so I figured out how to get it to work as a Smartdown Playable via a generic Javascript playable and `smartdown.import`. If things work out, I plan on creating a proper Smartdown plugin for the `exolve` DSL. So the current work below is really a prototype.
 
@@ -95,6 +95,11 @@ smartdown.importCssCode(css);
 this.div.innerHTML = html;
 puzzle.createPuzzle(puzzleText);
 ```
+
+#### Next Steps
+
+Utilize Solid's abilities to enable a multi-participant crossword experience, as well as the degenerate case of a single-participant crossword session. I'm thinking of adapting the Solid Long Chat facility for this purpose, as it would enable chat AND crossword and would provide a record of each participants *moves*, which would be nice for a *playback* feature.
+
 
 ---
 

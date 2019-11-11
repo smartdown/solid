@@ -24,6 +24,7 @@ With Solid, I can store and edit the Smartdown docs in the context of Solid's PO
 - [Smartdown using Solid via LDFlex](:@/public/SolidLDFlex.md)
 - [Smartdown/Solid Container Navigation](:@/public/SolidLDFlexContainer.md)
 - [Creating, Modifying, Deleting Solid Objects in Smartdown](:@/public/SolidLDFlexMutation.md)
+- [Smartdown/Solid Crosswords (super-new-and-incomplete)](:@/public/SolidCrossword.md)
 
 
 #### Source for this project
