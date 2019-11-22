@@ -2,10 +2,10 @@
 
 #
 # This script assumes that you have captured your browser's
-# connect.sid cookie value and placed it into a file
-# publishToSolid.smartdown.connect.sid that is included below.
+# nssidp.sid cookie value and placed it into a file
+# publishToSolid.smartdown.nssidp.sid that is included below.
 # This file should consist of a single line of text with the
-# connect.sid value.
+# nssidp.sid value.
 #
 # For instructions on how to capture this Cookie value, please
 # consult:
@@ -20,9 +20,9 @@ then
 	echo "# No 'publishToSolid.connect.sid' found"
 	echo "#"
 	echo "# You need to create a publishToSolid.${target}.connect.sid that has your"
-	echo "# connect.sid from your web browser."
+	echo "# nssidp.sid from your web browser."
 	echo "# See https://github.com/megoth/solid-update-index-tutorial for"
-	echo "# how to get your connect.sid Cookie."
+	echo "# how to get your nssidp.sid Cookie."
 	echo "#"
 	exit 1
 fi
@@ -46,15 +46,18 @@ upload() {
 	extensionLC="$(tr [A-Z] [a-z] <<< "$extension")"
 	if [ ${extensionLC} == "html" ]
 	then
-		curl --cookie "connect.sid=${sid}" -H "Content-Type: text/html" --upload-file ${localFile} ${remoteURL}
+		curl --cookie "nssidp.sid=${sid}" -H "Content-Type: text/html" --upload-file ${localFile} ${remoteURL}
 	elif [ ${extensionLC} == "svg" ]
 	then
-		curl --cookie "connect.sid=${sid}" -H "Content-Type: image/svg+xml" --upload-file ${localFile} ${remoteURL}
+		curl --cookie "nssidp.sid=${sid}" -H "Content-Type: image/svg+xml" --upload-file ${localFile} ${remoteURL}
 	elif [ ${extensionLC} == "png" ]
 	then
-		curl --cookie "connect.sid=${sid}" -H "Content-Type: image/png" --upload-file ${localFile} ${remoteURL}
+		curl --cookie "nssidp.sid=${sid}" -H "Content-Type: image/png" --upload-file ${localFile} ${remoteURL}
+	elif [ ${extensionLC} == "css" ]
+	then
+		curl --cookie "nssidp.sid=${sid}" -H "Content-Type: text/css" --upload-file ${localFile} ${remoteURL}
 	else
-		curl --cookie "connect.sid=${sid}" ${mimeHeaders} --upload-file ${localFile} ${remoteURL}
+		curl --cookie "nssidp.sid=${sid}" ${mimeHeaders} --upload-file ${localFile} ${remoteURL}
 	fi
 	echo ""
 }
@@ -64,7 +67,7 @@ export -f upload
 delete() {
 	remotePath=$1
 	remoteURL=${base}/${remotePath}
-	curl --cookie "connect.sid=${sid}" -XDELETE ${remoteURL}
+	curl --cookie "nssidp.sid=${sid}" -XDELETE ${remoteURL}
 }
 export -f delete
 
@@ -75,8 +78,11 @@ then
 	# delete public/smartdown/index.html
 	# delete public/smartdown/
 
-	upload public/smartdown/index_solid.html public/smartdown/index.html
+	delete public/HomeDoctorBud.md
 	upload public/HomeDoctorBud.md public/Home.md
+	upload PubSubWithAdd.html public/PubSubWithAdd.html
+	upload PubSubWithSet.html public/PubSubWithSet.html
+	exit
 elif [ $target == "smartdown" ]
 then
 	# delete public/D3.md
@@ -103,9 +109,7 @@ then
 	# delete public/logo.png
 	# delete public/logo.svg
 
-	upload public/exolve/exolve-m.js
 	upload public/SolidCrossword.md
-	upload public/Home.md
 	exit
 
 	upload indexSmartdownRoot.html index.html
@@ -123,6 +127,11 @@ then
 	upload public/SolidLDFlexContainer.md
 	upload public/SolidLDFlexMutation.md
 	upload public/SolidQueries.md
+
+	upload public/exolve/exolve-multi.js
+	upload public/exolve/exolve-multi.css
+	upload public/SolidCrossword.md
+
 	upload public/smartdown/index_solid.html public/smartdown/index.html
 	upload ../dokieli/indexoverview.html public/dokieli/index.html
 	upload ../dokieli/index.html public/dokieli/dokieli.html

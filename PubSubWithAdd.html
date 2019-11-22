@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1">
+
+  <title>PubSub with LDFlex .add()</title>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/solid-auth-client/dist-lib/solid-auth-client.bundle.js">
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@solid/query-ldflex/dist/solid-query-ldflex.bundle.js">
+  </script>
+  <script src="https://unpkg.com/@rdfjs/data-model/dist/rdf-data-model.js">
+  </script>
+
+  <style>
+    body {
+      background: aliceblue;
+      padding: 10px;
+    }
+    body * {
+      font-size: 1.1em;
+    }
+    input {
+      width: 100%;
+    }
+
+    pre {
+      width: 100%;
+      padding: 5px;
+      background: black;
+      color: lightgreen;
+      height: 250px;
+      overflow-y: scroll;
+    }
+
+    div#current-labels {
+      padding: 10px;
+      border: 2px solid lightgray;
+      height: 200px;
+      overflow-y: scroll;
+    }
+  </style>
+</head>
+
+<body>
+  <div>
+    <hr>
+
+    <p>
+      This page views and modifies the Label for a Solid resource by using
+      <a href="https://github.com/solid/query-ldflex" target="_blank">query-ldflex</a> to read and write the label, and by using WebSocket to listen to changes to the resource.
+    </p>
+
+    <p>
+      Clicking the <code>Add Label</code> button will write the value of
+      <code>Next Label</code> to the resource, and will add an 'X' to
+      <code>Next Label</code> to provide a unique label for subsequent
+      <code>Add Label</code> clicks.
+    </p>
+
+    <label for="resource">Resource:
+      <a id="resource-link" target="_blank">View via Data Browser</a>
+    </label>
+    <input type="text" id="resource" readonly>
+
+    <hr>
+
+    <label for="current-labels">
+      Labels: (
+      <span id="current-labels-count"></span>
+      total)
+    </label>
+    <div
+      id="current-labels">
+    </div>
+    <hr>
+
+    <label for="new-label">Next Sequence Number:</label>
+    <input type="text" id="next-sequence" readonly>
+
+    <label for="new-label">Next Label:</label>
+    <input type="text" id="next-label" required>
+
+    <hr>
+
+    <button type="button" id="add-button">Add Label</button>
+    <button type="button" id="add-n10-button">Add N=10 Labels</button>
+    <button type="button" id="add-n100-button">Add N=100 Labels</button>
+    <button type="button" id="add-n1000-button">Add N=1000 Labels</button>
+    <button type="button" id="reset-button">Reset Labels</button>
+
+    <pre id="console"></pre>
+
+  </div>
+
+  <script>
+'use strict';
+
+const rdf = window.rdf;
+const literal = rdf.literal;
+const resourceId = 'https://doctorbud.solid.community/public/PubSub/statePubSubAdd.ttl';
+const wss = 'wss://doctorbud.solid.community';
+// const resourceId = 'https://doctorbud.dev.inrupt.net/public/PubSub/statePubSubAdd.ttl';
+// const wss = 'wss://doctorbud.dev.inrupt.net';
+
+const consoleElement = document.getElementById('console');
+const resourceElement = document.getElementById('resource');
+const resourceLinkElement = document.getElementById('resource-link');
+const currentElement = document.getElementById('current-labels');
+const currentCountElement = document.getElementById('current-labels-count');
+const nextSequenceElement = document.getElementById('next-sequence');
+const nextLabelElement = document.getElementById('next-label');
+const addElement = document.getElementById('add-button');
+const addN10Element = document.getElementById('add-n10-button');
+const addN100Element = document.getElementById('add-n100-button');
+const addN1000Element = document.getElementById('add-n1000-button');
+const resetElement = document.getElementById('reset-button');
+
+function log(...args) {
+  let line = '';
+  args.forEach(arg => {
+    line += arg + ' ';
+  });
+  line += '\n';
+
+  consoleElement.innerText += line;
+  consoleElement.scrollTop = consoleElement.scrollHeight;
+}
+
+
+function displayCurrent(current) {
+  currentCountElement.innerText = `${current.length}`;
+  currentElement.innerText = current.join('\n');
+  currentElement.scrollTop = currentElement.scrollHeight;
+}
+
+
+async function getLabels(resourceId) {
+  const resource = solid.data[resourceId];
+  const labels = [];
+  for await (const label of resource['http://www.w3.org/2000/01/rdf-schema#label']) {
+    labels.push(label);
+  }
+  return labels
+    .filter(node => node.termType === 'Literal')
+    .map(label => label.value);
+}
+
+
+async function restoreState(resourceId) {
+  await solid.data.clearCache(resourceId);
+  const current = await getLabels(resourceId);
+
+  nextSequenceElement.value = `${(new Date()).toISOString()}|`;
+  if (nextLabelElement.value.length === 0) {
+    nextLabelElement.value = '<Message Payload Goes Here>';
+  }
+  displayCurrent(current);
+}
+
+
+async function addLabel(resourceId, label) {
+  try {
+    // solid.data.clearCache(resourceId);
+    const resource = solid.data[resourceId];
+    await resource['http://www.w3.org/2000/01/rdf-schema#label'].add(literal(label));
+  }
+  catch (e) {
+    log('addLabel() exception', typeof e, e, `"${label}"`);
+    log('Try again after clearing cache');
+    await solid.data.clearCache(resourceId);
+    await getLabels(resourceId);
+    await addLabel(resourceId, label);
+  }
+}
+
+
+async function addN(resourceId, n) {
+  for (let i = 0; i < n; ++i) {
+    await addLabel(resourceId, nextSequenceElement.value + nextLabelElement.value);
+
+    nextSequenceElement.value = `${(new Date()).toISOString()}|`;
+  }
+}
+
+addElement.onclick = async () => {
+  await addN(resourceId, 1);
+};
+
+
+addN10Element.onclick = async () => {
+  await addN(resourceId, 10);
+};
+
+
+addN100Element.onclick = async () => {
+  await addN(resourceId, 100);
+};
+
+
+addN1000Element.onclick = async () => {
+  await addN(resourceId, 1000);
+};
+
+
+resetElement.onclick = async () => {
+  const resource = solid.data[resourceId];
+  '' + (await resource['http://www.w3.org/2000/01/rdf-schema#label'].delete());
+  await restoreState(resourceId);
+};
+
+resourceElement.value = resourceId;
+resourceLinkElement.href = resourceId;
+
+// Listen to changes via WebSocket
+var socket = new WebSocket(wss);
+
+socket.onopen = async function() {
+  log('onopen');
+  this.send(`sub ${resourceId}`);
+  await restoreState(resourceId);
+};
+
+socket.onmessage = async function(msg) {
+  log('onmessage', msg.data);
+  if (msg.data && msg.data.slice(0, 3) === 'pub') {
+    await restoreState(resourceId);
+  }
+};
+
+  </script>
+</body>
+</html>
+

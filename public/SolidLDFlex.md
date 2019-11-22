@@ -22,7 +22,7 @@ Click on `DoctorBud`, `RubenVerborgh` or type in your own WebID to perform the q
 
 ```javascript /playable/autoplay
 //smartdown.import=https://cdn.jsdelivr.net/npm/solid-auth-client/dist-lib/solid-auth-client.bundle.js
-//smartdown.import=https://cdn.jsdelivr.net/npm/@solid/query-ldflex@2.5.1/dist/solid-query-ldflex.bundle.js
+//smartdown.import=https://cdn.jsdelivr.net/npm/@solid/query-ldflex/dist/solid-query-ldflex.bundle.js
 
 smartdown.setVariable('person', 'https://doctorbud.solid.community/profile/card#me');
 smartdown.setVariable('current', 'NotLoggedInToSolid');

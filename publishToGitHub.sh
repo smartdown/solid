@@ -12,6 +12,7 @@ cp -r ../public/ ./public/
 rm ./public/smartdown/index_solid.html
 mv ./public/smartdown/index_github.html ./public/smartdown/index.html
 cp ../index_github_root.html ./index.html
+mv ./public/SolidCrosswordGithubHack.md ./public/SolidCrossword.md
 touch .nojekyll
 ls -laR
 

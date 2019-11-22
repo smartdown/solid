@@ -1,105 +1,288 @@
 ### Crossword Puzzles via Solid
 
-I've been wanting to add Crossword puzzles to Smartdown, and the idea of using [Solid]() as a way to persist a single-user crossword session and to enable multi-participant crossword puzzles via Solid seemed very easy after my experiments with [SolidLDFlexMutation](:@/public/SolidLDFlexMutation.md). So this weekend in November, 2019, I decided to see how far I could get.
+I've been wanting to add Crossword puzzles to Smartdown, and the idea of using [Solid](http://solidproject.org) as a way to persist a single-user crossword session and to enable multi-participant crossword puzzles via Solid. This seemed very plausible after my experiments with [SolidLDFlexMutation](:@/public/SolidLDFlexMutation.md) and [SolidPubSub](:@/public/SolidPubSud.md). I haven't consulted [Solid Chess](https://github.com/pheyvaer/solid-chess) yet, but I think it will come in handy when I need to add niceties like Login, Invite and more restrictive access to a puzzle session.
 
-I looked around for existing crossword puzzle Javascript libraries that might be applicable to my needs, and came up with:
-- [exolve](https://github.com/viresh-ratnakar/exolve)
-- (unused here) [react-crossword](https://github.com/zetter/react-crossword)
 
-I really like the simple UI and vanilla Javascript nature of exolve, so I figured out how to get it to work as a Smartdown Playable via a generic Javascript playable and `smartdown.import`. If things work out, I plan on creating a proper Smartdown plugin for the `exolve` DSL. So the current work below is really a prototype.
+#### Crossword Puzzles via `exolve` and Smartdown
 
-My biggest challenge with exolve was to take a bunch of code that assumed it occupied a whole web page, and make it reentrant and isolated so that I could place several crosswords on a page.
+So I took a little time and evaluated [exolve](https://github.com/viresh-ratnakar/exolve) and I really liked the simple UI and vanilla Javascript nature of exolve. So I hacked it a bit to make it work as a Smartdown Playable via a generic Javascript playable and `smartdown.import`. My biggest challenge with exolve was to take a bunch of code that assumed it occupied a whole web page, and make it reentrant and isolated so that I could place several crosswords on a page. I hacked on [Exolve v0.36 October 22 2019](https://github.com/viresh-ratnakar/exolve/blob/master/CHANGELOG.md#version-exolve-v036-october-22-2019), although the author has already advanced to v0.38 at the time of this writing. The result of my efforts is explorable at [Crosswords](https://smartdown.site/#gallery/Crossword.md)
+
+#### Adding Solid to the Mix
+
+My next step was to learn about using the Websocket-based PubSub mechanism that a Solid server provides. My adventures are partially described in [Solid PubSub](:@/public/SolidPubSub.md). Then I combined the crossword playable with the PubSub playable to create a document (this document) that allows for a crossword puzzle to be played collaboratively, and to have its state reflected in a Solid POD resource.
+
+The following crossword puzzle will save its state to a Solid resource, and will react to that resource changing by updating the display. This is intended to enable collaborative puzzle solving between distributed and asynchronous participants.
+
 
 #### Basic Crossword
 
-Based on [example with submit.exolve](https://github.com/viresh-ratnakar/exolve/blob/master/example-with-submit.exolve), I removed the Submit and the Questions section.
+I've added two crossword examples to this page. The first is based on [example basic with solution](https://github.com/viresh-ratnakar/exolve/blob/master/example-basic-with-solution.exolve), although I removed the answers. I also create a *very simple* Solid-oriented puzzle. You can use the buttons below to switch puzzles.
 
+
+[Use Basic Puzzle](:=PuzzleIndex=0) [Use Solid Puzzle](:=PuzzleIndex=1)
+
+The state of both puzzles is shared via [crossword.ttl](https://doctorbud.solid.community/public/PubSub/crossword.ttl).
+
+---
 
 ```javascript /playable/autoplay
-//smartdown.import=../exolve/exolve-m.js
+//smartdown.import=/public/exolve/exolve-multi.css
+//smartdown.import=/public/exolve/exolve-multi.js
+//xsmartdown.import=https://unpkg.com/smartdown-gallery/exolve-multi.css
+//xsmartdown.import=https://unpkg.com/smartdown-gallery/exolve-multi.js
+//xsmartdown.import=https://localhost:4000/gallery/exolve-multi.css
+//xsmartdown.import=https://localhost:4000/gallery/exolve-multi.js
 
-const puzzleText = `
-======REPLACE WITH YOUR PUZZLE BELOW======
+
+
+const puzzleText0 = `
 exolve-begin
-  exolve-id: example-submit
-  exolve-title: Tiny Demo Crossword
-  exolve-setter: Exolve
+  exolve-id: example-basic
+  exolve-title: Smartdown/Solid Crossword Demo
+  exolve-setter: DoctorBud
   exolve-width: 5
   exolve-height: 5
   exolve-grid:
-    00000
-    0...0
-    00000
-    0...0
-    00000
+    HELLO
+    O...L
+    WORLD
+    L...E
+    STEER
   exolve-across:
-    1 Greeting (5)
-    3 Earth... but I'm adding a bunch of words to see how really really really really really really really really really really really really really really really really really really really really really really long clues are handled. (5)
+    1 Greeting (5) Example annotation shown for clue, upon "Reveal all"
+    3 Earth (5)
     4 Guide (5)
   exolve-down:
     1 Emits cry (5)
     2 More ancient (5)
+  exolve-explanations:
+    This text gets shown on clicking "Reveal all" and may include
+    explanations, commentary, annotations, etc.
 exolve-end
-======REPLACE WITH YOUR PUZZLE ABOVE======
 `;
 
-const puzzle = new Puzzle();
-const html = puzzle.getHtml();
-const css = puzzle.getCSS();
-smartdown.importCssCode(css);
-this.div.innerHTML = html;
-puzzle.createPuzzle(puzzleText);
+
+const puzzleText1 = `
+exolve-begin
+  exolve-id: example-solid
+  exolve-title: Smartdown/Solid Crossword
+  exolve-setter: DoctorBud
+  exolve-width: 6
+  exolve-height: 6
+  exolve-grid:
+    .MIT.I
+    W.N..N
+    E.RDF.
+    B.U..P
+    I.P..O
+    DATA.D
+  exolve-across:
+    1 University where Solid originated (3)
+    3 Earth with a long long clue with a long long clue with a long long clue with a long long clue with a long long clue with a long long clue with a long long clue with a long long clue (5)
+    5 Resource Description Framework (3)
+    7 The Solid ___ Browser enables read/write of a user's information. (4)
+  exolve-down:
+    2 The company supporting the Solid project. (6)
+    3 The opposite of out
+    4 You authenticate with Solid via your ___ (5)
+    6 Your information is in your Solid ___ (3)
+exolve-end
+`;
+
+const puzzleTexts = [puzzleText0, puzzleText1];
+
+const log = this.log;
+let puzzle;
+
+
+function getBrowser() {
+  let type = '';
+
+  if (navigator.userAgent.indexOf('Chrome') != -1 ) {
+    type = 'Chrome';
+  }
+  else if (navigator.userAgent.indexOf('Firefox') != -1 ) {
+    type = 'Firefox';
+  }
+  else if (navigator.userAgent.indexOf('MSIE') != -1 ) {
+    type = 'MSIE';
+  }
+  else if (navigator.userAgent.indexOf('Edge') != -1 ) {
+    type = 'Edge';
+  }
+  else if (navigator.userAgent.indexOf('Safari') != -1 ) {
+    type = 'Safari';
+  }
+  else if (navigator.userAgent.indexOf('Opera') != -1 ) {
+    type = 'Opera';
+  }
+
+  return type;
+}
+
+let player = 'Player-' + getBrowser();
+let session = await solid.auth.currentSession();
+if (session) {
+  player = 'Player-' + session.webId;
+}
+
+
+this.dependOn.RestoreState1 = () => {
+  if (env.RestoreState1 &&
+      (env.SaveState1 !== env.RestoreState1) &&
+      (env.SavePlayer1 !== env.RestorePlayer1)) {
+    puzzle.setState(env.RestoreState1);
+  }
+};
+
+
+this.dependOn.PuzzleIndex = () => {
+  puzzle = new Puzzle();
+  this.div.innerHTML = puzzle.getHtml();
+  this.div.style.background = 'aliceblue';
+
+  puzzle.createPuzzle(puzzleTexts[env.PuzzleIndex]);
+  puzzle.stateChangeListener = (state) => {
+    smartdown.setVariable('Errors1', undefined);
+    smartdown.setVariable('SavePlayer1', player);
+    smartdown.setVariable('SaveState1', state);
+  };
+  // smartdown.setVariable('EraseSolidResource', true);
+};
+
+smartdown.setVariable('PuzzleIndex', 0);
+
 ```
 
 ---
 
+[](:!Errors1|json)
 
-#### A Bars and Blocks Example
+#### Bind the Crossword State to Solid
 
-Based on [example-bars-and-blocks.exolve](https://github.com/viresh-ratnakar/exolve/blob/master/example-bars-and-blocks.exolve), this puzzle contains its solution, so the `Check` and `Reveal` buttons are enabled.
+This playable will *depend on* the `SaveState1` variable that is mutated when the user changes a letter in the puzzle above. In addition, it will *listen* via a Websocket to the Solid resource at [public/PubSub/crossword.ttl](https://doctorbud.solid.community/public/PubSub/crossword.ttl) and will reflect any changes back to the above playable via the variable `RestoreState1`. There is no need to make this playable and the state variables visible in a *real* app; I am doing so for *debugging* and *explanation* purposes.
+
+---
+
+[SaveState1](:!SaveState1)
+[SavePlayer1](:!SavePlayer1)
+
+[RestorePlayer1](:!RestorePlayer1)
+[RestoreState1](:!RestoreState1)
+
+[Erase Solid Resource](:=EraseSolidResource=true)
 
 ```javascript /playable/autoplay
-//smartdown.import=../exolve/exolve-m.js
+//smartdown.import=https://cdn.jsdelivr.net/npm/solid-auth-client/dist-lib/solid-auth-client.bundle.js
+//smartdown.import=https://cdn.jsdelivr.net/npm/@solid/query-ldflex/dist/solid-query-ldflex.bundle.js
+//smartdown.import=https://unpkg.com/@rdfjs/data-model/dist/rdf-data-model.js
 
-const puzzleText = `
-exolve-begin
-  exolve-id: example-bb
-  exolve-title: Tiny Crossword With Bars And Blocks
-  exolve-setter: Exolve
-  exolve-width: 5
-  exolve-height: 5
-  exolve-grid:
-    H E|B O O
-    I_. . . L
-    W O R L D_
-    A . . . O
-    S U E|A N 
-  exolve-across:
-    1 The man (2)
-    2 Jeer (3)
-    4 Planet (5)
-    6 Take legal action against (3)
-    7 Article (2)
-  exolve-down:
-    1 Greeting (2)
-    3 Aged (3)
-    4 Used to be (3)
-    5 Working (2)
-exolve-end
-`;
+const log = this.log;
 
-const puzzle = new Puzzle();
-const html = puzzle.getHtml();
-const css = puzzle.getCSS();
-smartdown.importCssCode(css);
-this.div.innerHTML = html;
-puzzle.createPuzzle(puzzleText);
+const rdf = window.rdf;
+const literal = rdf.literal;
+const resourceId = 'https://doctorbud.solid.community/public/PubSub/crossword.ttl';
+const wss = 'wss://doctorbud.solid.community';
+let puzzleIndex = env.PuzzleIndex;
+
+async function getStates(resourceId, puzzleIndex) {
+  // log('getStates', resourceId, puzzleIndex);
+  const resource = solid.data[resourceId];
+  const states = [];
+  try {
+    for await (const state of resource['http://www.w3.org/2000/01/rdf-schema#label']) {
+      states.push(state);
+    }
+    return states
+      .filter(node => {
+        // DRY this up so the split() isn't duplicated
+        let result = false;
+        if (node.termType === 'Literal') {
+          const stateParts = node.value.split('|');
+          result = (stateParts[1] === '' + puzzleIndex);
+        }
+        return result;
+      })
+      .map(state => {
+        const stateParts = state.value.split('|');
+        return {
+          timestamp: stateParts[0],
+          puzzleIndex: stateParts[1],
+          player: stateParts[2],
+          board: stateParts[3]
+        };
+      });
+  }
+  catch (e) {
+    log('getStates exception: ', e);
+    debugger;
+  }
+}
+
+
+async function addState(resourceId, puzzleIndex, player, state) {
+  try {
+    // solid.data.clearCache(resourceId);
+    const resource = solid.data[resourceId];
+    const sequencedLabel = `${(new Date()).toISOString()}|${puzzleIndex}|${player}|${state}`;
+    await resource['http://www.w3.org/2000/01/rdf-schema#label'].add(literal(sequencedLabel));
+  }
+  catch (e) {
+    log('addState() exception', typeof e, e, `"${state}"`);
+    log('Try again after clearing cache');
+    await solid.data.clearCache(resourceId);
+    await getStates(resourceId, puzzleIndex);
+    await addState(resourceId, puzzleIndex, player, state);
+  }
+}
+
+this.dependOn.SaveState1 = async () => {
+  await addState(resourceId, env.PuzzleIndex, env.SavePlayer1, env.SaveState1);
+};
+
+this.dependOn.EraseSolidResource = async () => {
+  env.EraseSolidResource = false;
+  const resource = solid.data[resourceId];
+  '' + (await resource['http://www.w3.org/2000/01/rdf-schema#label'].delete());
+};
+
+
+async function restoreState(resourceId, puzzleIndex) {
+  await solid.data.clearCache(resourceId);
+  const states = await getStates(resourceId, puzzleIndex);
+  if (states && states.length > 0) {
+    const newState = states[states.length - 1];
+
+    smartdown.setVariables([
+      {lhs: 'RestorePlayer1', rhs: newState.player, type: 'string'},
+      {lhs: 'RestoreState1', rhs: newState.board, type: 'string'}]);
+  }
+}
+
+// Listen to changes via WebSocket
+var socket = new WebSocket(wss);
+
+this.dependOn.PuzzleIndex = async () => {
+  if (env.PuzzleIndex !== puzzleIndex) {
+    puzzleIndex = env.PuzzleIndex;
+      await restoreState(resourceId, env.PuzzleIndex);
+    }
+};
+
+socket.onopen = async function() {
+  // log('onopen', puzzleIndex);
+  this.send(`sub ${resourceId}`);
+  await restoreState(resourceId, puzzleIndex);
+};
+
+socket.onmessage = async function(msg) {
+  // log('onmessage', puzzleIndex, msg.data);
+  if (msg.data && msg.data.slice(0, 3) === 'pub') {
+    await restoreState(resourceId, puzzleIndex);
+  }
+};
+
 ```
-
-#### Next Steps
-
-Utilize Solid's abilities to enable a multi-participant crossword experience, as well as the degenerate case of a single-participant crossword session. I'm thinking of adapting the Solid Long Chat facility for this purpose, as it would enable chat AND crossword and would provide a record of each participants *moves*, which would be nice for a *playback* feature.
-
 
 ---
 

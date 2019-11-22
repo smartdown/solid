@@ -1,5 +1,4 @@
 'use strict';
-console.log('####exolve');
 
 /*
 MIT License
@@ -33,11 +32,14 @@ const VERSION = 'Exolve v0.36 October 22 2019 (w/reentrancy via DoctorBud)'
 let puzzleInstanceId = 0;
 let puzzleInstances = {};
 
+const exolvePrefix = 'exolve-';
+
 class Puzzle {
   constructor() {
+    const puzzleThis = this;
     puzzleInstanceId = puzzleInstanceId + 1;
     this.id = puzzleInstanceId;
-    const puzzlePrefix = `puzzle-${puzzleInstanceId}-`;
+    const puzzlePrefix = `${exolvePrefix}${puzzleInstanceId}-`;
     puzzleInstances[puzzlePrefix] = this;
 
 // ------ Begin globals.
@@ -1439,7 +1441,7 @@ function displayClues() {
     }
     let tr = document.createElement('tr')
     let col1 = document.createElement('td')
-    col1.innerHTML = clues[clueIndex].displayLabel
+    col1.innerHTML = `<div class="clue-label">${clues[clueIndex].displayLabel}</div>`;
     let col2 = document.createElement('td')
     col2.innerHTML = clues[clueIndex].clue
 
@@ -1526,6 +1528,7 @@ function getGridStateAndNumFilled() {
   }
   return [state, numFilled];
 }
+this.getGridStateAndNumFilled = getGridStateAndNumFilled.bind(this);
 
 // Update status, ensure answer fields are upper-case (when they have
 // an enum), disable buttons as needed, and return the state.
@@ -1547,7 +1550,7 @@ function updateDisplayAndGetState() {
 }
 
 // Call updateDisplayAndGetState() and save state in cookie and location.hash.
-function updateAndSaveState() {
+function updateAndSaveState(inhibitListener) {
   let state = updateDisplayAndGetState()
   for (let a of answersList) {
     state = state + STATE_SEP + a.input.value
@@ -1561,16 +1564,75 @@ function updateAndSaveState() {
   let expires = 'expires=' + d.toUTCString();
   document.cookie = puzzleId + '=' + state + ';' + expires + ';path=/';
 
-  // Also save the state in location.hash.
-  //smartdownDisabled... location.hash = '#' + state
+  let oldState = decodeURIComponent(location.hash.substr(1))
+
+  let parts = oldState.split('?');
+  let newParts = [];
+  let newPartsForSaving = [];
+  let found = false;
+  for (const part in parts) {
+    const partString = parts[part];
+    if (partString.indexOf(exolvePrefix) === 0) {
+      const eqIndex = partString.indexOf('=');
+      const key = partString.slice(exolvePrefix.length, eqIndex);
+      console.log('key', key, puzzleId, state, partString, partString.slice(eqIndex + 1));
+      if (key == puzzleId) {
+        found = true;
+        // newParts.push(`${exolvePrefix}${puzzleId}=${state}`);
+        newPartsForSaving.push(`${exolvePrefix}${puzzleId}=${state}`);
+        break;
+      }
+      else {
+        newParts.push(partString);
+        // NO newPartsForSaving.push()
+      }
+    }
+    else {
+      newParts.push(partString);
+      newPartsForSaving.push(partString);
+    }
+  }
+  if (!found) {
+    // newParts.push(`${exolvePrefix}${puzzleId}=${state}`);
+    newPartsForSaving.push(`${exolvePrefix}${puzzleId}=${state}`);
+  }
+  const newSaveHash = newPartsForSaving.join('?');
+
+  location.hash = '#' + newParts.join('?');
+  // console.log('location.hash=', location.hash);
   if (savingURL) {
-    savingURL.href = location.href
+    // savingURL.href = location.href
+    savingURL.href = `${location.origin}${location.pathname}#${newSaveHash}`;
+    // console.log('savingURL.href', location.hash, savingURL.href, newSaveHash);
+  }
+
+  if (!inhibitListener && puzzleThis.stateChangeListener) {
+    puzzleThis.stateChangeListener(state);
   }
 }
 
 // Restore state from cookie (or location.hash).
 function restoreState() {
   let state = decodeURIComponent(location.hash.substr(1))
+  let parts = state.split('?');
+  let foundExolve = false;
+  for (const part in parts) {
+    const partString = parts[part];
+    if (partString.indexOf(exolvePrefix) === 0) {
+      foundExolve = true;
+      const eqIndex = partString.indexOf('=');
+      const key = partString.slice(exolvePrefix.length, eqIndex);
+      if (key === puzzleId) {
+        state = partString.slice(eqIndex + 1);
+        break;
+      }
+    }
+  }
+
+  if (!foundExolve) {
+    state = '';
+  }
+
   if (!state) {
     let name = puzzleId + '=';
     let decodedCookie = decodeURIComponent(document.cookie);
@@ -1585,15 +1647,72 @@ function restoreState() {
       }
     }
   }
-  state = state.trim()
-  let error = false
+
+  setState(state);
+}
+
+function checkState(state) {
+  let error = false;
+  let errors = [];
+
   if (state == '') {
-    console.log('No saved state available')
+    errors.push('No saved state available')
     error = true
   } else if (state.length < (gridWidth * gridHeight)) {
-    console.log('Not enough characters in state')
+    errors.push('Not enough characters in state')
     error = true
   }
+
+  if (error) {
+    return errors;
+  }
+
+  let index = 0
+  for (let i = 0; i < gridHeight && !error; i++) {
+    for (let j = 0; j < gridWidth && !error; j++) {
+      const letter = state.charAt(index++);
+      if (grid[i][j].isLight || grid[i][j].isDiagramless) {
+        if (grid[i][j].prefill) {
+          // grid[i][j].currentLetter = grid[i][j].solution
+          continue
+        }
+        if (letter == '0') {
+           // grid[i][j].currentLetter = ''
+        } else if (letter == '1') {
+           if (!grid[i][j].isDiagramless) {
+             errors.push('Unexpected ⬛ in non-diagramless location');
+             error = true
+             break
+           }
+        } else {
+           if (letter < 'A' || letter > 'Z') {
+             errors.push('Unexpected letter ' + letter + ' in state');
+             error = true
+             break
+           }
+        }
+      } else {
+        if (letter != '.') {
+          errors.push('Unexpected letter ' + letter + ' in state, expected .');
+          error = true
+          break
+        }
+      }
+    }
+  }
+
+  return errors;
+}
+
+
+function setState(state) {
+  state = state.trim()
+  let errors = checkState(state);
+  let error = errors.length > 0;
+  if (error) {
+    return errors;
+  }
+
   let index = 0
   for (let i = 0; i < gridHeight && !error; i++) {
     for (let j = 0; j < gridWidth && !error; j++) {
@@ -1667,8 +1786,11 @@ function restoreState() {
       }
     }
   }
-  updateAndSaveState()
+  updateAndSaveState(true); // inhibit listener on explicit setState()
+
+  return errors;
 }
+this.setState = setState;
 
 function deactivateCurrentCell() {
   gridInputWrapper.style.display = 'none'
@@ -2395,6 +2517,7 @@ function showNinas() {
   ninasButton.innerHTML = 'Hide ninas'
   showingNinas = true
 }
+this.showNinas = showNinas.bind(this);
 
 function hideNinas() {
   for (const ec of ninaClassElements) {
@@ -2404,6 +2527,7 @@ function hideNinas() {
   ninasButton.innerHTML = 'Show ninas'
   showingNinas = false
 }
+this.hideNinas = hideNinas.bind(this);
 
 function toggleNinas() {
   if (showingNinas) {
@@ -2415,6 +2539,7 @@ function toggleNinas() {
     showNinas()
   }
 }
+this.toggleNinas = toggleNinas.bind(this);
 
 function clearCell(row, col) {
   let oldLetter = grid[row][col].currentLetter
@@ -2502,6 +2627,7 @@ function clearCurrent() {
   }
   updateAndSaveState()
 }
+this.clearCurrent = clearCurrent.bind(this);
 
 function clearAll() {
   if (!confirm('Are you sure you want to clear the whole grid!?')) {
@@ -2784,7 +2910,7 @@ function createPuzzle(puzzleText) {
   displayNinas();
   displayButtons();
 
-  restoreState();
+  // restoreState();
 
   if (typeof customizePuzzle === 'function') {
     customizePuzzle()
@@ -3058,19 +3184,6 @@ function getHtml() {
     <div id="${puzzlePrefix}current-clue"></div>
   </div>
   <div class="flex-row">
-    <div id="${puzzlePrefix}clues" class="flex-row">
-      <div id="${puzzlePrefix}across-clues-panel" class="clues-box" style="display:none">
-        <b>Across</b>
-        <table id="${puzzlePrefix}across"></table>
-      </div> <!-- #across-clues-panel -->
-      <div id="${puzzlePrefix}down-clues-panel" class="clues-box" style="display:none">
-        <b>Down</b>
-        <table id="${puzzlePrefix}down"></table>
-      </div> <!-- #down-clues-panel -->
-      <div id="${puzzlePrefix}nodir-clues-panel" class="clues-box" style="display:none">
-        <table id="${puzzlePrefix}nodir"></table>
-      </div> <!-- #nodir-clues-panel -->
-    </div> <!-- #clues -->
     <div id="${puzzlePrefix}grid-panel">
       <div id="${puzzlePrefix}grid-parent-centerer">
         <div id="${puzzlePrefix}grid-parent">
@@ -3163,6 +3276,22 @@ function getHtml() {
       <br/>
     </div> <!-- #grid-panel -->
 
+    <div id="${puzzlePrefix}clues" class="flex-row">
+      <div id="${puzzlePrefix}across-clues-panel" class="clues-box" style="display:none">
+        <hr/>
+        <b>Across</b>
+        <table id="${puzzlePrefix}across"></table>
+      </div> <!-- #across-clues-panel -->
+      <div id="${puzzlePrefix}down-clues-panel" class="clues-box" style="display:none">
+        <hr/>
+        <b>Down</b>
+        <table id="${puzzlePrefix}down"></table>
+      </div> <!-- #down-clues-panel -->
+      <div id="${puzzlePrefix}nodir-clues-panel" class="clues-box" style="display:none">
+        <table id="${puzzlePrefix}nodir"></table>
+      </div> <!-- #nodir-clues-panel -->
+    </div> <!-- #clues -->
+
   </div>
 </div> <!-- #outermost-stack -->
 `;
@@ -3171,6 +3300,7 @@ function getHtml() {
 }
 
 this.getHtml = getHtml.bind(this);
+
 // ------ End functions.
 
 } // end constructor
@@ -3203,6 +3333,5 @@ static getInstance(prefix) {
 
   exports.Puzzle = Puzzle;
   exports.getInstance = Puzzle.getInstance;
-  console.log('exports', window.Puzzle);
 });
 
