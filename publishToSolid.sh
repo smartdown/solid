@@ -12,7 +12,7 @@
 #  https://github.com/megoth/solid-update-index-tutorial#get-cookie-value
 #
 
-target=smartdown
+target=doctorbud
 
 export sid="`cat publishToSolid.${target}.connect.sid`"
 if [ -z "$sid" ]
@@ -78,10 +78,10 @@ then
 	# delete public/smartdown/index.html
 	# delete public/smartdown/
 
-	delete public/HomeDoctorBud.md
-	upload public/HomeDoctorBud.md public/Home.md
-	upload PubSubWithAdd.html public/PubSubWithAdd.html
-	upload PubSubWithSet.html public/PubSubWithSet.html
+	upload public/dbx2/index.html
+	# upload public/dbx1/README.md
+	# upload public/dbx2/index.html
+	# upload public/dbx2/README.md
 	exit
 elif [ $target == "smartdown" ]
 then
