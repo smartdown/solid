@@ -78,10 +78,8 @@ then
 	# delete public/smartdown/index.html
 	# delete public/smartdown/
 
-	upload public/dbx2/index.html
-	# upload public/dbx1/README.md
-	# upload public/dbx2/index.html
-	# upload public/dbx2/README.md
+	upload public/databrowser_with_markdown.html public/index.html
+
 	exit
 elif [ $target == "smartdown" ]
 then
