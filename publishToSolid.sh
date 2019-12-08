@@ -76,9 +76,13 @@ if [ $target == "doctorbud" ]
 then
 	# delete public/Home.md
 	# delete public/smartdown/index.html
-	# delete public/smartdown/
+	# delete public/index.html
 
 	upload public/databrowser_with_markdown.html public/index.html
+	upload public/HomeDoctorBud.md public/Home.md
+	upload public/D3.md
+	upload public/Mobius.md
+	upload public/P5JS.md
 
 	exit
 elif [ $target == "smartdown" ]

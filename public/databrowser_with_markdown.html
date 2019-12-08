@@ -4,10 +4,15 @@
     <meta charset="utf-8"/>
     <title>DoctorBud Data Browser w/Markdown</title>
     <base href="https://doctorbud.solid.community/">
+    <!-- <base href="/"> -->
+
+    <link href="/mash.css" rel="stylesheet">
 
     <link href="https://unpkg.com/easymde/dist/easymde.min.css" rel="stylesheet" />
-    <link href="https://doctorbud.com/dokieli/easymde.css" rel="stylesheet" />
-    <script src="https://unpkg.com/easymde@2.8.0/dist/easymde.min.js"></script>
+
+    <!-- Smartdown stuff. Comment out to disable Smartdown -->
+    <link rel=stylesheet href="https://unpkg.com/smartdown/dist/lib/smartdown.css">
+    <link rel=stylesheet href="https://unpkg.com/smartdown/dist/lib/fonts.css">
 
     <style>
       /*
@@ -42,7 +47,7 @@
       .instancePane > table td.pred {
         min-width: 1em !important;
         width: 1em !important;
-        border: 1px solid lavender;
+        xborder: 1px solid lavender;
       }
       .instancePane > table td.obj {
       }
@@ -96,6 +101,7 @@
         width: auto !important;
         margin: 0 !important;
         padding: 5px 20px !important;
+        padding: 0 !important;
       }
       .markdownPane > table {
         margin: 0 !important;
@@ -119,18 +125,58 @@
         width: 100% !important;
       }
 
+
+      /* imported from dokieli smartdown experiment. Probably has redundant styles */
+/*
+      .editor-toolbar {
+        padding: 0 5px;
+      }
+
+      .editor-toolbar:before {
+        margin-bottom: 0;
+      }
+
+      .editor-toolbar:after {
+        margin-top: 0;
+      }
+
+      .editor-preview-full {
+        padding: 0;
+        padding-right: 10px;
+        padding-left: 2px;
+      }
+
+*/
+
+      .smartdown-outer-container.smartdown-theme-blog .smartdown-container p.smartdown_p {
+        padding-left: 0;
+      }
+
+      /* end of dokieli styles */
+
+
+      .editor-preview {
+        background: #fbfbfe;
+      }
+      .smartdown-outer-container {
+        background: #fbfbfe !important;
+        /*width: 100%;*/
+      }
+
       div.CodeMirror-scroll {
-        min-height: 50px !important;
+        margin: -10px;
+        min-height: 100px !important;
         width: 100%;
+        padding: 5px 10px !important;
       }
       .markdownPane > table > tr > .easymde-div .CodeMirror.cm-s-easymde.CodeMirror-wrap {
         width: 100%;
+        padding: 0 !important;
       }
 
       .markdownPane > table > tr > .easymde-div .cm-s-easymde.CodeMirror-wrap
         .editor-preview-full.editor-preview.editor-preview-active {
-        padding: 4px 8px !important;
-        background: ghostwhite;
+        padding: 5px 10px !important;
       }
 
 /*
@@ -151,6 +197,38 @@
 */
     </style>
 
+
+    <script src="https://unpkg.com/easymde@2.8.0/dist/easymde.min.js"></script>
+    <script src="https://unpkg.com/smartdown/dist/lib/smartdown.js"></script>
+    <script src="https://unpkg.com/smartdown/dist/lib/calc_handlers.js"></script>
+
+
+    <!--
+      The following override of console.log is a way to reduce the unnecessary
+      verbosity of the Solid UI
+    -->
+
+    <script>
+      const saveConsoleLog = console.log;
+      console.log = function log() {
+        const args = arguments;
+        const arg0 = typeof args[0] === 'string' ? args[0].trim() : '';
+        if (arg0.indexOf('setCredentials') === 0 ||
+            arg0.indexOf('logIn') === 0 ||
+            arg0.indexOf('(Logged in') === 0 ||
+            arg0.indexOf('Unique quadstore initialized') === 0 ||
+            arg0.indexOf('registering pane') === 0) {
+          // saveConsoleLog('filterlog', args[0], typeof args[0], args);
+          // pass
+        }
+        else {
+          // saveConsoleLog('!filterlog', args);
+          saveConsoleLog(...args)
+        }
+      };
+    </script>
+
+
     <script>
       /* global alert */
 
@@ -165,6 +243,8 @@
       // Changing from dom to context
       // https://github.com/solid/solid-panes/pull/199
 
+      let smartdownEnabled = true;
+      let markdownIdCounter = 0;
       var extensionToMimetype = {
          'img': 'image/jpeg',
          'png': 'image/png',
@@ -188,7 +268,7 @@
 
 
       function renderCommon(subject, myDocument, previewOnly) {
-        console.log('renderCommon', subject, myDocument, previewOnly);
+        // console.log('renderCommon', subject, myDocument, previewOnly);
         const kb = UI.store;  // context.session.store
         const ns = UI.ns
         const fetcher = kb.fetcher
@@ -225,16 +305,245 @@
         var textArea = textAreaDiv.appendChild(myDocument.createElement('textarea'))
         textArea.setAttribute('style', editStyle)
 
+        // https://github.com/Ionaru/easy-markdown-editor#configuration
+
+        let easyMDE = null;
         let options = {
           element: textArea,
+          previewRender: function(plainText, preview) { // Async method
+            if (!smartdownEnabled) {
+              return EasyMDE.prototype.markdown(plainText);
+            }
+
+            if (preview.innerHTML === '') {
+              markdownIdCounter++;
+              var sdPreviewId = `smartdown-preview-${markdownIdCounter}`;
+              var sdId = `smartdown-output-${markdownIdCounter}`;
+              var sdDiv =
+`
+<div
+id="${sdPreviewId}"
+class="smartdown-outer-container smartdown-theme-chat">
+<div
+id="${sdId}"
+class="smartdown-container">
+</div>
+</div>
+`;
+              setTimeout(function() {
+                var smartdownDiv = document.getElementById(sdId);
+                preview.smartdownDiv = smartdownDiv;
+                smartdown.setSmartdown(plainText, smartdownDiv, function() {
+                  smartdown.startAutoplay(preview.smartdownDiv);
+                });
+              }, 0);
+
+              return sdDiv;
+            }
+            else if (preview.smartdownDiv) {
+              smartdown.setSmartdown(plainText, preview.smartdownDiv, function() {
+                smartdown.startAutoplay(preview.smartdownDiv);
+              });
+
+              return null;
+            }
+            else {
+              return null;
+            }
+          },
           spellChecker: false,
+          toolbar: [
+            {
+              name: 'bold',
+              action: EasyMDE.toggleBold,
+              className: 'fa fa-bold',
+              title: 'Bold',
+              default: true,
+            },
+            {
+              name: 'italic',
+              action: EasyMDE.toggleItalic,
+              className: 'fa fa-italic',
+              title: 'Italic',
+              default: true,
+            },
+            {
+              name: 'strikethrough',
+              action: EasyMDE.toggleStrikethrough,
+              className: 'fa fa-strikethrough',
+              title: 'Strikethrough',
+            },
+            // {
+            //     name: 'heading',
+            //     action: EasyMDE.toggleHeadingSmaller,
+            //     className: 'fa fa-header fa-heading',
+            //     title: 'Heading',
+            //     default: true,
+            // },
+            // {
+            //     name: 'heading-smaller',
+            //     action: EasyMDE.toggleHeadingSmaller,
+            //     className: 'fa fa-header fa-heading header-smaller',
+            //     title: 'Smaller Heading',
+            // },
+            // {
+            //     name: 'heading-bigger',
+            //     action: EasyMDE.toggleHeadingBigger,
+            //     className: 'fa fa-header fa-heading header-bigger',
+            //     title: 'Bigger Heading',
+            // },
+            // {
+            //     name: 'heading-1',
+            //     action: EasyMDE.toggleHeading1,
+            //     className: 'fa fa-header fa-heading header-1',
+            //     title: 'Big Heading',
+            // },
+            // {
+            //     name: 'heading-2',
+            //     action: EasyMDE.toggleHeading2,
+            //     className: 'fa fa-header fa-heading header-2',
+            //     title: 'Medium Heading',
+            // },
+            // {
+            //     name: 'heading-3',
+            //     action: EasyMDE.toggleHeading3,
+            //     className: 'fa fa-header fa-heading header-3',
+            //     title: 'Small Heading',
+            // },
+            "|",
+            {
+              name: 'code',
+              action: EasyMDE.toggleCodeBlock,
+              className: 'fa fa-code',
+              title: 'Code',
+            },
+            {
+              name: 'quote',
+              action: EasyMDE.toggleBlockquote,
+              className: 'fa fa-quote-left',
+              title: 'Quote',
+              default: true,
+            },
+            // {
+            //   name: 'unordered-list',
+            //   action: EasyMDE.toggleUnorderedList,
+            //   className: 'fa fa-list-ul',
+            //   title: 'Generic List',
+            //   default: true,
+            // },
+            // {
+            //   name: 'ordered-list',
+            //   action: EasyMDE.toggleOrderedList,
+            //   className: 'fa fa-list-ol',
+            //   title: 'Numbered List',
+            //   default: true,
+            // },
+            // {
+            //     name: 'clean-block',
+            //     action: EasyMDE.cleanBlock,
+            //     className: 'fa fa-eraser',
+            //     title: 'Clean block',
+            // },
+            "|",
+            {
+              name: 'link',
+              action: EasyMDE.drawLink,
+              className: 'fa fa-link',
+              title: 'Create Link',
+              default: true,
+            },
+            {
+              name: 'image',
+              action: EasyMDE.drawImage,
+              className: 'fa fa-image',
+              title: 'Insert Image',
+              default: true,
+            },
+            // {
+            //     name: 'upload-image',
+            //     action: EasyMDE.drawUploadedImage,
+            //     className: 'fa fa-image',
+            //     title: 'Import an image',
+            // },
+            // {
+            //     name: 'table',
+            //     action: EasyMDE.drawTable,
+            //     className: 'fa fa-table',
+            //     title: 'Insert Table',
+            // },
+            {
+              name: 'horizontal-rule',
+              action: EasyMDE.drawHorizontalRule,
+              className: 'fa fa-minus',
+              title: 'Insert Horizontal Line',
+            },
+            "|",
+            {
+              name: 'preview',
+              action: EasyMDE.togglePreview,
+              className: 'fa fa-eye',
+              noDisable: true,
+              title: 'Toggle Preview',
+              default: true,
+            },
+            {
+              name: 'side-by-side',
+              action: function() {
+                easyMDE.toggleSideBySide();
+                if (!easyMDE.isSideBySideActive() && easyMDE.isFullscreenActive()) {
+                  easyMDE.toggleFullScreen();
+                }
+              },
+              className: 'fa fa-columns',
+              noDisable: true,
+              noMobile: true,
+              title: 'Toggle Side by Side',
+              default: true,
+            },
+            {
+              name: 'fullscreen',
+              action: EasyMDE.toggleFullScreen,
+              className: 'fa fa-arrows-alt',
+              noDisable: true,
+              noMobile: true,
+              title: 'Toggle Fullscreen',
+              default: true,
+            },
+            "|",
+            {
+              name: 'guide',
+              action: 'https://www.markdownguide.org/basic-syntax/',
+              className: 'fa fa-question-circle',
+              noDisable: true,
+              title: 'Markdown Guide',
+              default: true,
+            },
+            "|",
+            {
+              name: 'undo',
+              action: EasyMDE.undo,
+              className: 'fa fa-undo',
+              noDisable: true,
+              title: 'Undo',
+            },
+            {
+              name: 'redo',
+              action: EasyMDE.redo,
+              className: 'fa fa-repeat fa-redo',
+              noDisable: true,
+              title: 'Redo',
+            },
+          ],
         };
         if (previewOnly) {
           options.toolbar = false;
           options.status = false;
         }
+        else {
 
-        const easyMDE = new EasyMDE(options);
+        }
+
+        easyMDE = new EasyMDE(options);
 
         if (previewOnly) {
         }
@@ -255,7 +564,6 @@
         var myEditButton = controls.appendChild(editButton(myDocument))
 
         if (previewOnly) {
-          console.log('previewOnly');
           cancelButton.style.display = 'none';
           saveButton.style.display = 'none';
           myEditButton.style.display = 'none';
@@ -356,7 +664,7 @@
 
         function happy (response, method) {
           if (!response.ok) {
-            let msg = 'HTTP error on ' + method + '! Status: ' + response.status
+            let msg = '!happy: HTTP error on ' + method + '! Status: ' + response.status
             console.log(msg)
             if (response.status === 412) msg = 'Error: File changed by someone else'
             statusRow.appendChild(UI.widgets.errorMessageBlock(myDocument, msg))
@@ -365,14 +673,19 @@
         }
 
         function refresh (autoEdit) {
+          // console.log('refresh1', autoEdit, previewOnly, subject.uri);
           fetcher.webOperation('GET', subject.uri).then(function (response) {
             if (!happy(response, 'GET')) return
             var desc = response.responseText
-            console.log('refresh', autoEdit, desc);
             textArea.rows = desc ? desc.split('\n').length + 2 : 2
             textArea.cols = 80
             // textArea.value = desc
             easyMDE.value(desc);
+            setTimeout(function() {
+              var size = easyMDE.codemirror.getScrollInfo();
+              easyMDE.codemirror.setCursor(1, 1);
+              easyMDE.codemirror.setSize('100%', '100%'); // size.width + 1, size.height + 1);
+            }, 10)
 
             if (previewOnly) {
               easyMDE.togglePreview();
@@ -401,7 +714,7 @@
               statusRow.appendChild(UI.widgets.errorMessageBlock(myDocument, 'Error: No content-type available!'))
               return
             }
-            console.log('       source content-type ' + contentType)
+
             // let allowed = response.headers['allow']
             if (!allowed) {
               console.log('@@@@@@@@@@ No Allow: header from this server')
@@ -423,16 +736,42 @@
         return div
       }
 
-      document.addEventListener('DOMContentLoaded', function() {
+      function handleBrowse1(browse1URI) {
+        console.log('browse1', browse1URI);
+        const dom = document
+        var uri = window.location.href;
+        window.document.title = 'Browse1: ' + uri;
+        var kb = UI.store;
+        var outliner = panes.getOutliner(dom)
 
+        let browse1URIResolved = $rdf.uri.join(browse1URI, window.location.href)
+        console.log("Browse1 Request  " + browse1URI)
+        console.log("Browse1 Resolved " + browse1URIResolved)
+
+        const params = new URLSearchParams(location.search)
+        params.set('browse1', browse1URI);
+        let saveState = `${location.pathname}?${params}`;
+        const argsPos = browse1URIResolved.indexOf('?');
+        const subjectURI = argsPos >= 0 ? browse1URIResolved.slice(0, argsPos) : browse1URIResolved;
+
+        var subject = kb.sym(browse1URIResolved);
+        window.history.replaceState({}, '', subjectURI);
+        panes.runDataBrowser();
+        setTimeout(() => {
+          const savepopstate = window.onpopstate;
+          // window.onpopstate = function() {console.log('#########window.onpopstate disabled');};
+          window.history.replaceState({}, '', saveState);
+          // window.onpopstate = savepopstate;
+        }, 10);
+      }
+
+
+      document.addEventListener('DOMContentLoaded', function() {
         const humanReadableSaved = Object.assign({}, panes.humanReadable);
-        console.log('humanReadableSaved');
-        console.log(humanReadableSaved);
 
         panes.humanReadable.icon = UI.icons.originalIconBase + 'tango/22-text-html.png';
 
         panes.humanReadable.label = function (subject, context) {
-            console.log('panes.humanReadable.label', subject, context);
             if (subject.value.endsWith('.md')) {
               return 'Markdown';
             }
@@ -442,7 +781,6 @@
         };
 
         panes.humanReadable.render = function (subject, myDocument) {
-            console.log('panes.humanReadable.render', subject, myDocument);
             let result;
 
             if (subject.value.endsWith('.md')) {
@@ -485,21 +823,18 @@
           name: 'markdown',
 
           label: function (subject) {
-            console.log('label', subject);
             const kb = UI.store;  // context.session.store
             const ns = UI.ns
 
             var typeURIs = kb.findTypeURIs(subject)
             var prefix = $rdf.Util.mediaTypeClass('text/*').uri.split('*')[0]
-            console.log('xxx', subject, prefix, typeURIs)
             for (var t in typeURIs) {
-              console.log('tttttt', t, prefix, subject)
               if (t.startsWith(prefix)) return 'Source'
               if (t.includes('xml')) return 'XML Source'
             }
 
             if (subject.value.endsWith('.md')) {
-              console.log('fallthru to Markdown', kb, subject);
+              // console.log('fallthru to Markdown', kb, subject);
               return 'Markdown';
             }
 
@@ -549,11 +884,20 @@
 
         panes.register(markdownPane);
 
-        panes.runDataBrowser();
+        let browse1 = new URLSearchParams(self.location.search).get("browse1")
+        if (browse1) {
+          handleBrowse1(browse1);
+        }
+        else {
+          panes.runDataBrowser();
+        }
       })
     </script>
-    <link href="/mash.css" rel="stylesheet">
   </head>
+
+
+
+
   <body class="db-layout">
     <!-- solid-panes' OutlineManager injects into this element -->
     <header class="db-layout__header header" id="PageHeader"></header>
@@ -563,9 +907,35 @@
     </div>
     <footer class="db-layout__footer" id="PageFooter"></footer>
   <script type="text/javascript" src="/mashlib.min.js"></script></body>
+
+
+  <!-- Smartdown stuff. Comment out to disable Smartdown -->
+
+  <script src="https://unpkg.com/smartdown/dist/lib/starter.js"></script>
+  <script>
+    /* eslint-disable */
+    window.smartdownDefaultHome = 'https://unpkg.com/smartdown-gallery/Home.md';
+    window.smartdownResourceURL = '';
+    window.smartdownBaseURL = 'https://unpkg.com/smartdown/dist/';
+    window.smartdownResourceURL = 'https://unpkg.com/smartdown-gallery/resources/';
+    // window.smartdownRawPrefix = 'https://unpkg.com/smartdown-gallery/';
+    window.smartdownGistPathPrefix = '';
+    window.smartdownGistHashPrefix = 'gist/';
+    window.smartdownAdjustHash = false;
+
+    window.smartdownPostLoadMutator = function(sourceText, cardKey, cardURL, defaultHome) {
+      // console.log('smartdownPostLoadMutator', defaultHome);
+      if (cardKey === 'README') {
+        sourceText += '\n---\n\n[Back to Home](:@' + defaultHome + ')\n';
+      }
+
+      return sourceText;
+    };
+
+    window.smartdownStarter(null, function() {
+      // console.log('smartdownInitialized');
+    });
+  </script>
+
 </html>
-
-
-
-
 
