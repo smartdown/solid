@@ -147,12 +147,15 @@
       }
       .markdownPane > table > tr > .easymde-div .CodeMirror.cm-s-easymde.CodeMirror-wrap {
         width: 100%;
-        padding: 0 !important;
+        padding: 5px 10px !important;
+        background: ghostwhite;
       }
       .markdownPane > table > tr > .easymde-div .cm-s-easymde.CodeMirror-wrap
         .editor-preview-full.editor-preview.editor-preview-active {
         padding: 5px 10px !important;
       }
+
+
     </style>
 
 
@@ -162,19 +165,27 @@
     -->
     <script>
       const saveConsoleLog = console.log;
+      const filterPrefixes = [
+        '** Pod owner ',
+        'preventBrowserDropEvents called',
+        'Icon base is',
+        '@@@ widgets',
+        'setCredentials',
+        'logIn',
+        '(Logged in',
+        'Unique quadstore initialized',
+        'registering pane',
+      ];
       console.log = function log() {
         const args = arguments;
         const arg0 = typeof args[0] === 'string' ? args[0].trim() : '';
-        if (arg0.indexOf('setCredentials') === 0 ||
-            arg0.indexOf('logIn') === 0 ||
-            arg0.indexOf('(Logged in') === 0 ||
-            arg0.indexOf('Unique quadstore initialized') === 0 ||
-            arg0.indexOf('registering pane') === 0) {
-          // saveConsoleLog('filterlog', args[0], typeof args[0], args);
+
+        if (filterPrefixes.find(element => arg0.indexOf(element) >= 0)) {
+          // saveConsoleLog('####filterlog', args[0], typeof args[0], args);
           // pass
         }
         else {
-          // saveConsoleLog('!filterlog', args);
+          // saveConsoleLog('####!filterlog', args);
           saveConsoleLog(...args)
         }
       };
@@ -192,15 +203,20 @@
     </div>
     <footer class="db-layout__footer" id="PageFooter"></footer>
 
-
-
     <script type="text/javascript" src="/mashlib.min.js"></script>
+
+
+    <!-- EasyMDE JS needed for both Markdown and Smartdown -->
     <script src="https://unpkg.com/easymde@2.8.0/dist/easymde.min.js"></script>
 
     <!-- Smartdown stuff can be commented out to disable Smartdown -->
     <script src="https://unpkg.com/smartdown/dist/lib/smartdown.js"></script>
     <script src="https://unpkg.com/smartdown/dist/lib/calc_handlers.js"></script>
 
+    <!--
+        This script assumes that mashlib has been loaded and creates
+        additional panes before invoking the Data Browser via runDataBrowser().
+    -->
 
     <script>
       // Allow panes to be added dynamically
@@ -214,7 +230,17 @@
       // https://github.com/solid/solid-panes/pull/199
 
       let smartdownEnabled = typeof smartdown === 'object';
-      let markdownIdCounter = 0;
+      let smartdownIsLoaded = false;
+      let smartdownIsLoadedTask = null;
+
+      let smartdownIdCounter = 0;
+
+      /*
+       * An imperfect approximation of the mime-types module, which does
+       * not have a UMD version available, and therefore is not useful to me
+       * for the purposes of a lightweight buildless example of a databrowser
+       * customization.
+       */
       var extensionToMimetype = {
          'img': 'image/jpeg',
          'png': 'image/png',
@@ -224,7 +250,6 @@
          'txt': 'text/plain',
          'text': 'text/plain',
       }
-
       function mimeLookup(uri) {
         const extIndex = uri.lastIndexOf('.');
         if (extIndex >= 0) {
@@ -236,60 +261,12 @@
         return false;
       }
 
-
-      function renderCommon(subject, myDocument, previewOnly) {
-        // console.log('renderCommon', subject, myDocument, previewOnly);
-        const kb = UI.store;  // context.session.store
-        const ns = UI.ns
-        const fetcher = kb.fetcher
-        const editStyle = 'font-family: monospace; font-size: 100%; min-width:60em; margin: 1em 0.2em 1em 0.2em; padding: 1em; border: 0.1em solid #888; border-radius: 0.5em;'
-        var readonly = true
-        var editing = false
-        var broken = false
-        // Set in refresh()
-        var contentType, allowed, eTag // Note it when we read and use it when we save
-
-        const parseable = {
-          'text/n3': true,
-          'text/turtle': true,
-          'application/rdf+xml': true,
-          'application/xhtml+xml': true, // For RDFa?
-          // 'text/html': true,
-          // 'application/sparql-update': true,
-          'application/ld+json': true
-          // 'application/nquads' : true,
-          // 'application/n-quads' : true
-        }
-
-        var div = myDocument.createElement('div')
-        div.setAttribute('class', 'markdownPane')
-        var table = div.appendChild(myDocument.createElement('table'))
-        var main = table.appendChild(myDocument.createElement('tr'))
-        var statusRow = table.appendChild(myDocument.createElement('tr'))
-        var controls = table.appendChild(myDocument.createElement('tr'))
-        controls.setAttribute('style', 'text-align: right;')
-
-        var textAreaDiv = main.appendChild(myDocument.createElement('div'))
-        textAreaDiv.setAttribute('class', 'easymde-div')
-
-        var textArea = textAreaDiv.appendChild(myDocument.createElement('textarea'))
-        textArea.setAttribute('style', editStyle)
-
-        // https://github.com/Ionaru/easy-markdown-editor#configuration
-
-        let easyMDE = null;
-        let options = {
-          element: textArea,
-          previewRender: function(plainText, preview) { // Async method
-            if (!smartdownEnabled) {
-              return EasyMDE.prototype.markdown(plainText);
-            }
-
-            if (preview.innerHTML === '') {
-              markdownIdCounter++;
-              var sdPreviewId = `smartdown-preview-${markdownIdCounter}`;
-              var sdId = `smartdown-output-${markdownIdCounter}`;
-              var sdDiv =
+      function renderSmartdown(plainText, preview) {
+        if (preview.innerHTML === '') {
+          smartdownIdCounter++;
+          var sdPreviewId = `smartdown-preview-${smartdownIdCounter}`;
+          var sdId = `smartdown-output-${smartdownIdCounter}`;
+          var sdDiv =
 `
 <div
 id="${sdPreviewId}"
@@ -300,25 +277,57 @@ class="smartdown-container">
 </div>
 </div>
 `;
-              setTimeout(function() {
-                var smartdownDiv = document.getElementById(sdId);
-                preview.smartdownDiv = smartdownDiv;
-                smartdown.setSmartdown(plainText, smartdownDiv, function() {
-                  smartdown.startAutoplay(preview.smartdownDiv);
-                });
-              }, 0);
 
-              return sdDiv;
-            }
-            else if (preview.smartdownDiv) {
-              smartdown.setSmartdown(plainText, preview.smartdownDiv, function() {
-                smartdown.startAutoplay(preview.smartdownDiv);
-              });
+          function applySmartdown() {
+            preview.smartdownDiv = document.getElementById(sdId);
+            // console.log('setSmartdown timeout', preview.smartdownDiv.id, preview.smartdownDiv, preview.smartdownDiv.outerHTML, plainText.slice(0, 20));
+            smartdown.setSmartdown(plainText, preview.smartdownDiv, function() {
+              // console.log('setSmartdown timeout2', preview.smartdownDiv ? preview.smartdownDiv.id : 'NULL', plainText.slice(0, 20));
 
-              return null;
+              smartdown.startAutoplay(preview.smartdownDiv);
+            });
+          }
+
+          if (smartdownIsLoaded) {
+            setTimeout(() => {
+              applySmartdown();
+            });
+          }
+          else if (smartdownIsLoadedTask) {
+            console.log('smartdownIsLoadedTask ALREADY set. Probably multiple Smartdown instances on this page and smartdownIsLoadedTask needs to become an array of handlers.');
+          }
+          else {
+            console.log('smartdownIsLoadedTask set');
+            smartdownIsLoadedTask = applySmartdown;
+          }
+
+          return sdDiv;
+        }
+        else if (preview.smartdownDiv) {
+          console.log('setSmartdown preview', preview.smartdownDiv ? preview.smartdownDiv.id : 'NULL');
+          smartdown.setSmartdown(plainText, preview.smartdownDiv, function() {
+            smartdown.startAutoplay(preview.smartdownDiv);
+          });
+
+          return null;
+        }
+        else {
+          return null;
+        }
+      }
+
+
+      function buildEasyMDE(textArea, previewOnly) {
+        // https://github.com/Ionaru/easy-markdown-editor#configuration
+        let easyMDE = null;
+        let options = {
+          element: textArea,
+          previewRender: function(plainText, preview) { // Async method
+            if (!smartdownEnabled) {
+              return EasyMDE.prototype.markdown(plainText);
             }
             else {
-              return null;
+              return renderSmartdown(plainText, preview);
             }
           },
           spellChecker: false,
@@ -520,10 +529,59 @@ class="smartdown-container">
         else {
           easyMDE.codemirror.on('change', function() {
             const latest = easyMDE.value();
-            setEdited();
+            easyMDE.setEdited();
             // textArea.value = latest;
           });
         }
+
+        return easyMDE;
+      }
+
+
+      /**
+       * Common code used by both Preview and Two-Pane edit mode.
+       * Much of this is adapted from the default databrowser.html.
+       */
+
+      function renderCommon(subject, myDocument, previewOnly) {
+        // console.log('renderCommon', subject, myDocument, previewOnly);
+        const kb = UI.store;  // context.session.store
+        const ns = UI.ns
+        const fetcher = kb.fetcher
+        const editStyle = 'font-family: monospace; font-size: 100%; min-width:60em; margin: 1em 0.2em 1em 0.2em; padding: 1em; border: 0.1em solid #888; border-radius: 0.5em;'
+        var readonly = true
+        var editing = false
+        var broken = false
+        // Set in refresh()
+        var contentType, allowed, eTag // Note it when we read and use it when we save
+
+        const parseable = {
+          'text/n3': true,
+          'text/turtle': true,
+          'application/rdf+xml': true,
+          'application/xhtml+xml': true, // For RDFa?
+          // 'text/html': true,
+          // 'application/sparql-update': true,
+          'application/ld+json': true
+          // 'application/nquads' : true,
+          // 'application/n-quads' : true
+        }
+
+        var div = myDocument.createElement('div')
+        div.setAttribute('class', 'markdownPane')
+        var table = div.appendChild(myDocument.createElement('table'))
+        var main = table.appendChild(myDocument.createElement('tr'))
+        var statusRow = table.appendChild(myDocument.createElement('tr'))
+        var controls = table.appendChild(myDocument.createElement('tr'))
+        controls.setAttribute('style', 'text-align: right;')
+
+        var textAreaDiv = main.appendChild(myDocument.createElement('div'))
+        textAreaDiv.setAttribute('class', 'easymde-div')
+
+        var textArea = textAreaDiv.appendChild(myDocument.createElement('textarea'))
+        textArea.setAttribute('style', editStyle)
+
+        const easyMDE = buildEasyMDE(textArea, previewOnly);
 
         function editButton (myDocument) {
           return UI.widgets.button(myDocument, UI.icons.iconBase + 'noun_253504.svg', 'Edit')
@@ -567,6 +625,7 @@ class="smartdown-container">
           myEditButton.style.visibility = 'collapse'
           textArea.removeAttribute('readonly')
         }
+        easyMDE.setEdited = setEdited;
 
         if (!previewOnly) {
           textArea.addEventListener('keyup', setEdited)
@@ -706,38 +765,71 @@ class="smartdown-container">
         return div
       }
 
-      function handleBrowse1(browse1URI) {
-        console.log('browse1', browse1URI);
-        const dom = document
-        var uri = window.location.href;
-        window.document.title = 'Browse1: ' + uri;
-        var kb = UI.store;
-        var outliner = panes.getOutliner(dom)
 
-        let browse1URIResolved = $rdf.uri.join(browse1URI, window.location.href)
-        console.log("Browse1 Request  " + browse1URI)
-        console.log("Browse1 Resolved " + browse1URIResolved)
+      function handleBrowse1(browse1URI, adjustHistory) {
+        // console.log('handleBrowse1', browse1URI, adjustHistory);
+        const href = window.location.href;
+        window.document.title = 'Browse1: ' + href;
+
+        const browse1URIResolved = $rdf.uri.join(browse1URI, href);
+
+        // const browse1URIArgPos = browse1URI.indexOf('?');
+        // const browse1URINoArgs = browse1URI.slice(0, browse1URIArgPos + 1);
+        // const browse1URIResolved = $rdf.uri.join(browse1URI, href)
+        // const browse1URINoArgsResolved = $rdf.uri.join(browse1URINoArgs, href)
+        // console.log('href  ' + href)
+        // console.log('browse1URI  ' + browse1URI)
+        // console.log('browse1URINoArgs  ' + browse1URINoArgs)
+        // console.log('browse1URIResolved ' + browse1URIResolved)
+        // console.log('browse1URINoArgsResolved ' + browse1URINoArgsResolved)
 
         const params = new URLSearchParams(location.search)
         params.set('browse1', browse1URI);
-        let saveState = decodeURIComponent(`${location.pathname}?${params}`);
-        const argsPos = browse1URIResolved.indexOf('?');
-        const subjectURI = argsPos >= 0 ? browse1URIResolved.slice(0, argsPos) : browse1URIResolved;
+        const bookmarkURI = decodeURIComponent(`${location.pathname}?${params}`);
+        const bookmarkURIResolved = $rdf.uri.join(bookmarkURI, href)
+        const bookmarkURINoArgs = decodeURIComponent(`${location.pathname}`);
 
-        var subject = kb.sym(browse1URIResolved);
-        console.log('saveState', saveState);
-        window.history.replaceState({}, '', subjectURI);
+        window.history.replaceState({}, '', browse1URIResolved);
         panes.runDataBrowser();
-        setTimeout(() => {
-          // const savepopstate = window.onpopstate;
-          // window.onpopstate = function() {console.log('#########window.onpopstate disabled');};
-          window.history.replaceState({}, '', saveState);
-          // window.onpopstate = savepopstate;
-        }, 10);
+
+        if (adjustHistory) {
+          setTimeout(() => {
+            // console.log('replaceState timeout', history.state, window.location.href, bookmarkURI);
+            window.history.replaceState({browse1: browse1URI}, '', bookmarkURI);
+          }, 1000);
+        }
       }
 
 
+      // This needs to occur after mashlib has overriden the onpopstate
+      // event.
+      // window.addEventListener('popstate', (event) => {
+      const savePopState = window.onpopstate;
+      // console.log('savePopState', savePopState);
+      window.onpopstate = (event) => {
+        // console.log('event location: ' + document.location + ', state: ' + JSON.stringify(event.state) + ' history: ' + JSON.stringify(history.state));
+        const eventBrowse1 = event.state ? event.state.browse1 : '';
+        const searchBrowse1 = new URLSearchParams(window.location.search).get('browse1')
+        if (false && searchBrowse1) {
+          // console.log('...handleBrowse1 searchBrowse1', searchBrowse1);
+          // handleBrowse1(searchBrowse1);
+        }
+        else if (eventBrowse1) {
+          // console.log('...handleBrowse1 eventBrowse1', eventBrowse1);
+          // handleBrowse1(eventBrowse1);
+        }
+        else {
+          // window.history.replaceState({}, '', location.pathname);
+
+          // console.log('...ignore', event.state, window.location.search, href);
+          // savePopState(event);
+        }
+      };
+
+      let loadCounter = 0;
       document.addEventListener('DOMContentLoaded', function() {
+        ++loadCounter;
+        console.log('###DOMContentLoaded', loadCounter);
         const humanReadableSaved = Object.assign({}, panes.humanReadable);
 
         panes.humanReadable.icon = UI.icons.originalIconBase + 'tango/22-text-html.png';
@@ -866,7 +958,8 @@ class="smartdown-container">
 
           render: function (subject, myDocument) {
             window.setTimeout(() => {
-              handleBrowse1(subject.value);
+              const browse1 = subject.value;
+              handleBrowse1(subject.value, true);
             }, 1);
             const div = myDocument.createElement('div')
             div.setAttribute('style', 'margin: 40px 0; padding: 30px; border-radius: 10px; border: 10px solid lightblue; background: lightyellow;')
@@ -879,12 +972,13 @@ class="smartdown-container">
 
         let browse1 = new URLSearchParams(self.location.search).get("browse1")
         if (browse1) {
-          handleBrowse1(browse1);
+          // console.log('handleBrowse1 due to ', self.location.search, browse1);
+          handleBrowse1(browse1, true);
         }
         else {
           panes.runDataBrowser();
         }
-      })
+      });
     </script>
 
 
@@ -912,7 +1006,11 @@ class="smartdown-container">
       };
 
       window.smartdownStarter(null, function() {
-        // console.log('smartdownInitialized');
+        // console.log('smartdownStarter complete', smartdownIsLoadedTask, smartdownIsLoaded);
+        smartdownIsLoaded = true;
+        if (smartdownIsLoadedTask) {
+          smartdownIsLoadedTask();
+        }
       });
     </script>
   </body>

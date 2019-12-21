@@ -16,14 +16,15 @@ In this Smartdown doc, we are going to use [query-ldflex](https://github.com/sol
 If you are logged into Solid, the `Logged in Solid User` below should contain your WebID.
 
 - Example User: [Smartdown](:=person='https://smartdown.solid.community/profile/card#me')
-- Example User: [DoctorBud](:=person='https://doctorbud.solid.community/profile/card#me')
+- Example User: [DoctorBud](:=person='https://doctorbud.solid.community/profile/card#me') *fails due to query-ldflex issue with index.html*
+- Example User: [DrBud](:=person='https://drbud.solid.community/profile/card#me')
 - Example User: [Ruben Verborgh](:=person='https://ruben.verborgh.org/profile/#me')
 - Logged in Solid User: [`current`](:=person=current)
 - Try your own WebId: [WebID](:?person|text)
 
 ```javascript /playable/autoplay
 //smartdown.import=https://cdn.jsdelivr.net/npm/solid-auth-client/dist-lib/solid-auth-client.bundle.js
-//smartdown.import=https://cdn.jsdelivr.net/npm/@solid/query-ldflex/dist/solid-query-ldflex.bundle.js
+//smartdown.import=https://cdn.jsdelivr.net/npm/@solid/query-ldflex@2.6.0/dist/solid-query-ldflex.bundle.js
 
 smartdown.setVariable('current', '');
 smartdown.setVariable('person', 'https://smartdown.solid.community/profile/card#me');
@@ -51,7 +52,7 @@ For this playable, we'll get the `pim:storage` value for the person, and will us
 
 ```javascript /playable/autoplay
 //smartdown.import=https://cdn.jsdelivr.net/npm/solid-auth-client/dist-lib/solid-auth-client.bundle.js
-//smartdown.import=https://cdn.jsdelivr.net/npm/@solid/query-ldflex/dist/solid-query-ldflex.bundle.js
+//smartdown.import=https://cdn.jsdelivr.net/npm/@solid/query-ldflex@2.6.0/dist/solid-query-ldflex.bundle.js
 
 
 this.dependOn = ['person'];
@@ -81,6 +82,12 @@ The following playable reacts to changes in the `public` variable and lists the 
 this.dependOn = ['public'];
 this.depend = async function() {
   const public = env.public;
+
+  if (public.indexOf('https://doctorbud.solid.community/public/') === 0) {
+    const errorText = '# Sorry, but query-ldflex will not work on folders containing an index.html file.'
+    smartdown.setVariable('contentsMarkdown', errorText, 'markdown');
+    return;
+  }
 
   if (public.endsWith('../')) {
     const redirect = public.replace(/\/[^/]+\/\.\.\/$/, '/');

@@ -180,7 +180,7 @@ smartdown.setVariable('CreationResult', result);
 ### Add some edges to our object
 
 ```javascript /playable/xautoplay/console
-//smartdown.import=https://cdn.jsdelivr.net/npm/@solid/query-ldflex/dist/solid-query-ldflex.bundle.js
+//smartdown.import=https://cdn.jsdelivr.net/npm/@solid/query-ldflex@2.7.0/dist/solid-query-ldflex.bundle.js
 //smartdown.import=https://unpkg.com/@rdfjs/data-model/dist/rdf-data-model.js
 
 // The above smartdown.import statements mimic:

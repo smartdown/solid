@@ -27,7 +27,7 @@ The following playable uses as its target the resource
 
 ```javascript /playable/autoplay/console
 //smartdown.import=https://cdn.jsdelivr.net/npm/solid-auth-client/dist-lib/solid-auth-client.bundle.js
-//smartdown.import=https://cdn.jsdelivr.net/npm/@solid/query-ldflex/dist/solid-query-ldflex.bundle.js
+//smartdown.import=https://cdn.jsdelivr.net/npm/@solid/query-ldflex@2.7.0/dist/solid-query-ldflex.bundle.js
 //smartdown.import=https://unpkg.com/@rdfjs/data-model/dist/rdf-data-model.js
 
 const log = this.log;

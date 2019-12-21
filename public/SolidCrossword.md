@@ -174,7 +174,7 @@ This playable will *depend on* the `SaveState1` variable that is mutated when th
 
 ```javascript /playable/autoplay
 //smartdown.import=https://cdn.jsdelivr.net/npm/solid-auth-client/dist-lib/solid-auth-client.bundle.js
-//smartdown.import=https://cdn.jsdelivr.net/npm/@solid/query-ldflex/dist/solid-query-ldflex.bundle.js
+//smartdown.import=https://cdn.jsdelivr.net/npm/@solid/query-ldflex@2.7.0/dist/solid-query-ldflex.bundle.js
 //smartdown.import=https://unpkg.com/@rdfjs/data-model/dist/rdf-data-model.js
 
 const log = this.log;

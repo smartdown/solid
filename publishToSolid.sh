@@ -74,15 +74,22 @@ export -f delete
 
 if [ $target == "doctorbud" ]
 then
+	# delete public/PubSubWithAdd.html
+	# delete public/PubSubWithSet.html
 	# delete public/Home.md
 	# delete public/smartdown/index.html
 	# delete public/index.html
+	# delete public/D3.md
+	# delete public/Mobius.md
+	# delete public/P5JS.md
 
+	# upload PubSubWithAdd.html public/PubSubWithAdd.html
+	# upload PubSubWithSet.html public/PubSubWithSet.html
 	upload public/databrowser_with_markdown.html public/index.html
-	upload public/HomeDoctorBud.md public/Home.md
-	upload public/D3.md
-	upload public/Mobius.md
-	upload public/P5JS.md
+	# upload public/HomeDoctorBud.md public/Home.md
+	# upload public/D3.md
+	# upload public/Mobius.md
+	# upload public/P5JS.md
 
 	exit
 elif [ $target == "smartdown" ]
@@ -111,24 +118,22 @@ then
 	# delete public/logo.png
 	# delete public/logo.svg
 
-	upload public/SolidCrossword.md
-	exit
 
-	upload indexSmartdownRoot.html index.html
-	upload public/login/index.html
-	upload public/folder1/folder2/Nested.md
-	upload public/D3.md
-	upload public/Graphviz.md
-	upload public/Home.md
-	upload public/Inlines.md
-	upload public/LDF.md
-	upload public/Mobius.md
-	upload public/P5JS.md
-	upload README.md public/README.md
-	upload public/SolidLDFlex.md
+	# upload indexSmartdownRoot.html index.html
+	# upload public/login/index.html
+	# upload public/folder1/folder2/Nested.md
+	# upload public/D3.md
+	# upload public/Graphviz.md
+	# upload public/Home.md
+	# upload public/Inlines.md
+	# upload public/LDF.md
+	# upload public/Mobius.md
+	# upload public/P5JS.md
+	# upload README.md public/README.md
+	# upload public/SolidLDFlex.md
 	upload public/SolidLDFlexContainer.md
-	upload public/SolidLDFlexMutation.md
-	upload public/SolidQueries.md
+	# upload public/SolidLDFlexMutation.md
+	# upload public/SolidQueries.md
 
 	upload public/exolve/exolve-multi.js
 	upload public/exolve/exolve-multi.css
