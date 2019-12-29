@@ -68,4 +68,4 @@ The source for this [Smartdown](https://smartdown.io) card is available at https
 
 ---
 
-[Back to Home](:@/public/Home.md)
+[Back to Home](:@Home)

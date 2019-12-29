@@ -82,14 +82,17 @@ then
 	# delete public/D3.md
 	# delete public/Mobius.md
 	# delete public/P5JS.md
+	delete public/smartdown/starter.js
 
 	# upload PubSubWithAdd.html public/PubSubWithAdd.html
 	# upload PubSubWithSet.html public/PubSubWithSet.html
+	# upload ../smartdown/src/starter.js public/smartdown/starter.js
+	upload public/smartdown/index_solid.html public/smartdown/index.html
 	upload public/databrowser_with_markdown.html public/index.html
-	# upload public/HomeDoctorBud.md public/Home.md
-	# upload public/D3.md
-	# upload public/Mobius.md
-	# upload public/P5JS.md
+	upload public/HomeDoctorBud.md public/Home.md
+	upload public/D3.md
+	upload public/Mobius.md
+	upload public/P5JS.md
 
 	exit
 elif [ $target == "smartdown" ]

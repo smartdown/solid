@@ -31,6 +31,29 @@ I've modified the default `databrowser.html` for my POD's `/public` folder so th
 - [Mobius](:@https://doctorbud.solid.community/public/Mobius.md)
 - [D3](:@https://doctorbud.solid.community/public/D3.md)
 
+#### Relative tunnels with `/public/` and `.md`
+
+- [P5JS](:@/public/P5JS.md)
+- [Mobius](:@/public/Mobius.md)
+- [D3](:@/public/D3.md)
+
+#### Relative tunnels with `public/` and `.md`
+
+- [P5JS](:@public/P5JS.md)
+- [Mobius](:@public/Mobius.md)
+- [D3](:@public/D3.md)
+
+#### Relative tunnels without `public/`, with `.md`
+
+- [P5JS](:@P5JS.md)
+- [Mobius](:@Mobius.md)
+- [D3](:@D3.md)
+
+#### Relative tunnels without `public/` or `.md`
+
+- [P5JS](:@P5JS)
+- [Mobius](:@Mobius)
+- [D3](:@D3)
 
 #### Experiments with Solid and no Smartdown
 
@@ -44,18 +67,19 @@ I wrote these in vanilla HTML to test performance and do some debugging without 
 
 I try to keep the `doctorbud.solid.community` examples and experiments separate from the `smartdown.solid.community` ones, although there is some duplication. I have not (yet) verified that all of the examples at [smartdown.solid.community](https://smartdown.solid.community/public/) are compatible with my modifications to `databrowser.html`.
 
-- [smartdown.solid.community](https://smartdown.solid.community/public/Home.md)
-- [Querying Solid in Smartdown with Comunica](https://smartdown.solid.community/public/SolidQueries.md)
-- [Smartdown using Solid via LDFlex](https://smartdown.solid.community/public/SolidLDFlex.md)
-- [Smartdown/Solid Container Navigation](https://smartdown.solid.community/public/SolidLDFlexContainer.md)
-- [Creating, Modifying, Deleting Solid Objects in Smartdown](https://smartdown.solid.community/public/SolidLDFlexMutation.md)
-- [Smartdown/Solid PubSub](https://smartdown.solid.community/public/SolidPubSub.md)
-- [Smartdown/Solid Crosswords](https://smartdown.solid.community/public/SolidCrossword.md)
+- [smartdown.solid.community](https://smartdown.solid.community/public/smartdown/#/public/Home.md)
+- [Querying Solid in Smartdown with Comunica](https://smartdown.solid.community/public/smartdown/#/public/SolidQueries.md)
+- [Smartdown using Solid via LDFlex](https://smartdown.solid.community/public/smartdown/#/public/SolidLDFlex.md)
+- [Smartdown/Solid Container Navigation](https://smartdown.solid.community/public/smartdown/#/public/SolidLDFlexContainer.md)
+- [Creating, Modifying, Deleting Solid Objects in Smartdown](https://smartdown.solid.community/public/smartdown/#/public/SolidLDFlexMutation.md)
+- [Smartdown/Solid PubSub](https://smartdown.solid.community/public/smartdown/#/public/SolidPubSub.md)
+- [Smartdown/Solid Crosswords](https://smartdown.solid.community/public/smartdown/#/public/SolidCrossword.md)
 
 
 ---
 
 This document is sourced from https://doctorbud.solid.community/public/Home.md which may be viewed using `browse1Pane` via:
 
+https://doctorbud.solid.community/public/?browse1=https://doctorbud.solid.community/public/Home.md
 
 but may be rendered via a different Smartdown viewer within another site.
