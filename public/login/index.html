@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Logged into Solid</title>
+
+  <style>
+  .smartdown-outer-container.smartdown-theme-blog {
+    margin: auto !important;
+    padding: 0 20px !important;
+  }
+  </style>
+</head>
+
+<body>
+  <div
+    style="padding:50px;border:10px solid lightgray;border-radius:20px;">
+    <h1>Successfully logged in</h1>
+    <h3>You should be redirected back to your originating page</h3>
+  </div>
+
+  <script src="https://solid.github.io/solid-auth-client/dist/solid-auth-client.bundle.js"></script>
+
+  <script>
+    // console.log('before greetUser: window.location.href', window.location.href);
+    // console.log('before greetUser: window.location.hash', window.location.hash);
+    // console.log('before greetUser: document.origin', document.origin);
+    // console.log('before greetUser: document.referrer', document.referrer);
+
+    // https://github.com/solid/solid-auth-client#usage
+
+    async function greetUser() {
+      const session = await solid.auth.currentSession();
+      if (!session) {
+        console.log('greetUser: Not logged in');
+      }
+      else {
+        console.log(`greetUser: Logged in as ${session.webId}`);
+        // console.log('after greetUser: window.location.href', window.location.href);
+        // console.log('after greetUser: window.location.hash', window.location.hash);
+        // console.log('after greetUser: document.origin', document.origin);
+        // console.log('after greetUser: document.referrer', document.referrer);
+      }
+      window.location.href = '/public/smartdown/' + window.location.hash;
+      if (window.location.origin === 'https://smartdown.github.io') {
+        window.location.href = '/solid/public/smartdown/' + window.location.hash;
+      }
+    }
+
+    greetUser();
+
+
+  </script>
+</body>
+</html>
