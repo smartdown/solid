@@ -2,18 +2,18 @@
 
 > Smartdown is a Markdown-compatible language for authoring interactive documents. It resembles Jupyter, but has a version-compatible source format, and requires no server to remain interactive. Good for experimenting with, integrating and discussing other technology. Solid complements Smartdown nicely, by providing a *place* to store documents, and an *identity* to enable controlled access (read and write) to this data.
 
-I wanted to try out [query-ldflex](https://github.com/solid/query-ldflex) and see whether it could be useful via Smartdown. So I've adapted the examples from query-ldflex to perform some queries against a specified profile, such as [Ruben Verborgh's](https://ruben.verborgh.org/profile/#me) well-annotated profile, or my own, far less prolific [DoctorBud](https://doctorbud.solid.community/profile/card#me) Solid Community profile.
+I wanted to try out [query-ldflex](https://github.com/solid/query-ldflex) and see whether it could be useful via Smartdown. So I've adapted the examples from query-ldflex to perform some queries against a specified profile, such as [Ruben Verborgh's](https://ruben.verborgh.org/profile/#me) well-annotated profile, or my own, far less prolific [DoctorBud](https://doctorbud.solidcommunity.net/profile/card#me) Solid Community profile.
 
 For this first demonstration, I'm going to list the `friend` and `blogPost` entities that are linked to the target profile. I'm not sure if this is the optimal way to use query-ldflex; I seem to be using a lot more `await` operators than I think should be necessary.
 
-I was unable to figure out how to get the Solid Data Browser to edit my friends list and my blog post list, so I used the Data Browser to edit the RDF source for my [profile](https://doctorbud.solid.community/profile/card), and added entries that constituted a small friends list and a small blog posts list. It seems to work fine.
+I was unable to figure out how to get the Solid Data Browser to edit my friends list and my blog post list, so I used the Data Browser to edit the RDF source for my [profile](https://doctorbud.solidcommunity.net/profile/card), and added entries that constituted a small friends list and a small blog posts list. It seems to work fine.
 
 Because my Solid profile is relatively new, I had to synthesize a *friends* list, so I adopted [Ruben Verborgh](https://ruben.verborgh.org/profile/#me), [Tim Berners-Lee](https://www.w3.org/People/Berners-Lee/card#i), and [Sarven Capadisli](https://csarven.ca/#i) out of convenience; perhaps one day I will actually meet them.
 
 ### Demo Demo!
 
 I'm going to use a Smartdown variable called `person` that will be initialized to my profile URL (my WebID):
-- https://doctorbud.solid.community/profile/card#me
+- https://doctorbud.solidcommunity.net/profile/card#me
 
 The following playable will initialize `person` to my WebID and will `dependOn` this variable so that if the reader changes it, the playable will *react* and fetch the new data.
 
@@ -24,7 +24,7 @@ Click on `DoctorBud`, `RubenVerborgh` or type in your own WebID to perform the q
 //smartdown.import=https://cdn.jsdelivr.net/npm/solid-auth-client/dist-lib/solid-auth-client.bundle.js
 //smartdown.import=https://cdn.jsdelivr.net/npm/@solid/query-ldflex@2.7.0/dist/solid-query-ldflex.bundle.js
 
-smartdown.setVariable('person', 'https://doctorbud.solid.community/profile/card#me');
+smartdown.setVariable('person', 'https://doctorbud.solidcommunity.net/profile/card#me');
 smartdown.setVariable('current', 'NotLoggedInToSolid');
 
 if (typeof solid.data.user !== 'undefined') {
@@ -82,7 +82,7 @@ this.depend = async function() {
 
 [person](:?person|text)
 
-[DoctorBud](:=person='https://doctorbud.solid.community/profile/card#me')
+[DoctorBud](:=person='https://doctorbud.solidcommunity.net/profile/card#me')
 [Ruben Verborgh](:=person='https://ruben.verborgh.org/profile/#me')
 [`current`](:=person=current)
 
@@ -96,7 +96,7 @@ this.depend = async function() {
 
 [person](:?person|text)
 
-[DoctorBud](:=person='https://doctorbud.solid.community/profile/card#me')
+[DoctorBud](:=person='https://doctorbud.solidcommunity.net/profile/card#me')
 [Ruben Verborgh](:=person='https://ruben.verborgh.org/profile/#me')
 [`current`](:=person=current)
 
@@ -136,7 +136,7 @@ this.depend = function() {
 
 ---
 
-The source for this [Smartdown](https://smartdown.io) card is available at https://smartdown.solid.community/public/SolidLDFlex.md and via [GitHub](https://github.com/smartdown/solid/blob/master/public/SolidLDFlex.md).
+The source for this [Smartdown](https://smartdown.io) card is available at https://smartdown.solidcommunity.net/public/SolidLDFlex.md and via [GitHub](https://github.com/smartdown/solid/blob/master/public/SolidLDFlex.md).
 
 ---
 

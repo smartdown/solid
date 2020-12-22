@@ -23,7 +23,7 @@ socket.onmessage = function(msg) {
 ```
 
 The following playable uses as its target the resource
-- https://doctorbud.solid.community/public/PubSub/state.ttl
+- https://doctorbud.solidcommunity.net/public/PubSub/state.ttl
 
 ```javascript /playable/autoplay/console
 //smartdown.import=https://cdn.jsdelivr.net/npm/solid-auth-client/dist-lib/solid-auth-client.bundle.js
@@ -33,7 +33,7 @@ The following playable uses as its target the resource
 const log = this.log;
 const rdf = window.rdf;
 const literal = rdf.literal;
-const resourceId = 'https://doctorbud.solid.community/public/PubSub/state.ttl';
+const resourceId = 'https://doctorbud.solidcommunity.net/public/PubSub/state.ttl';
 
 
 async function getLabel(resourceId) {
@@ -64,7 +64,7 @@ async function restoreState(resourceId) {
   smartdown.setVariable('LabelActual', label);
 }
 
-var socket = new WebSocket('wss://doctorbud.solid.community');
+var socket = new WebSocket('wss://doctorbud.solidcommunity.net');
 
 socket.onopen = async function() {
   log('onopen');
@@ -115,14 +115,14 @@ smartdown.setVariable('LabelActual', label);
 
 #### View the Resource
 
-The resulting `example.ttl` file is visible via [https://doctorbud.solid.community/public/PubSub/state.ttl](https://doctorbud.solid.community/public/PubSub/state.ttl)
+The resulting `example.ttl` file is visible via [https://doctorbud.solidcommunity.net/public/PubSub/state.ttl](https://doctorbud.solidcommunity.net/public/PubSub/state.ttl)
 
-or via the [LDFlex Playground](https://solid.github.io/ldflex-playground/#%5B'https%3A%2F%2Fdoctorbud.solid.community%2Fpublic%2Fscratch%2Fexample.ttl'%5D%5B'http%3A%2F%2Fxmlns.com%2Ffoaf%2F0.1%2Fnick'%5D)
+or via the [LDFlex Playground](https://solid.github.io/ldflex-playground/#%5B'https%3A%2F%2Fdoctorbud.solidcommunity.net%2Fpublic%2Fscratch%2Fexample.ttl'%5D%5B'http%3A%2F%2Fxmlns.com%2Ffoaf%2F0.1%2Fnick'%5D)
 
 
 ---
 
-The source for this [Smartdown](https://smartdown.io) card is available at https://smartdown.solid.community/public/SolidPubSub.md and via [GitHub](https://github.com/smartdown/solid/blob/master/public/SolidPubSub.md).
+The source for this [Smartdown](https://smartdown.io) card is available at https://smartdown.solidcommunity.net/public/SolidPubSub.md and via [GitHub](https://github.com/smartdown/solid/blob/master/public/SolidPubSub.md).
 
 ---
 

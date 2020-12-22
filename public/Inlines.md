@@ -251,7 +251,7 @@ digraph L0 {
 
 ---
 
-The source for this [Smartdown](https://smartdown.io) card is available at https://smartdown.solid.community/public/Inlines.md and via [GitHub](https://github.com/smartdown/solid/blob/master/public/Inlines.md).
+The source for this [Smartdown](https://smartdown.io) card is available at https://smartdown.solidcommunity.net/public/Inlines.md and via [GitHub](https://github.com/smartdown/solid/blob/master/public/Inlines.md).
 
 ---
 

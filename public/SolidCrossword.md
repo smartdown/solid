@@ -21,7 +21,7 @@ I've added two crossword examples to this page. The first is based on [example b
 
 [Use Basic Puzzle](:=PuzzleIndex=0) [Use Solid Puzzle](:=PuzzleIndex=1)
 
-The state of both puzzles is shared via [crossword.ttl](https://doctorbud.solid.community/public/PubSub/crossword.ttl).
+The state of both puzzles is shared via [crossword.ttl](https://doctorbud.solidcommunity.net/public/PubSub/crossword.ttl).
 
 ---
 
@@ -160,7 +160,7 @@ smartdown.setVariable('PuzzleIndex', 0);
 
 #### Bind the Crossword State to Solid
 
-This playable will *depend on* the `SaveState1` variable that is mutated when the user changes a letter in the puzzle above. In addition, it will *listen* via a Websocket to the Solid resource at [public/PubSub/crossword.ttl](https://doctorbud.solid.community/public/PubSub/crossword.ttl) and will reflect any changes back to the above playable via the variable `RestoreState1`. There is no need to make this playable and the state variables visible in a *real* app; I am doing so for *debugging* and *explanation* purposes.
+This playable will *depend on* the `SaveState1` variable that is mutated when the user changes a letter in the puzzle above. In addition, it will *listen* via a Websocket to the Solid resource at [public/PubSub/crossword.ttl](https://doctorbud.solidcommunity.net/public/PubSub/crossword.ttl) and will reflect any changes back to the above playable via the variable `RestoreState1`. There is no need to make this playable and the state variables visible in a *real* app; I am doing so for *debugging* and *explanation* purposes.
 
 ---
 
@@ -181,8 +181,8 @@ const log = this.log;
 
 const rdf = window.rdf;
 const literal = rdf.literal;
-const resourceId = 'https://doctorbud.solid.community/public/PubSub/crossword.ttl';
-const wss = 'wss://doctorbud.solid.community';
+const resourceId = 'https://doctorbud.solidcommunity.net/public/PubSub/crossword.ttl';
+const wss = 'wss://doctorbud.solidcommunity.net';
 let puzzleIndex = env.PuzzleIndex;
 
 async function getStates(resourceId, puzzleIndex) {

@@ -27,9 +27,9 @@ I've modified the default `databrowser.html` for my POD's `/public` folder so th
 
 #### Plain Ole Smartdown Demos
 
-- [P5JS](:@https://doctorbud.solid.community/public/P5JS.md)
-- [Mobius](:@https://doctorbud.solid.community/public/Mobius.md)
-- [D3](:@https://doctorbud.solid.community/public/D3.md)
+- [P5JS](:@https://doctorbud.solidcommunity.net/public/P5JS.md)
+- [Mobius](:@https://doctorbud.solidcommunity.net/public/Mobius.md)
+- [D3](:@https://doctorbud.solidcommunity.net/public/D3.md)
 
 #### Relative tunnels with `/public/` and `.md`
 
@@ -59,27 +59,27 @@ I've modified the default `databrowser.html` for my POD's `/public` folder so th
 
 I wrote these in vanilla HTML to test performance and do some debugging without worry of Smartdown affecting my measurements.
 
-- [PubSubWithSet](https://doctorbud.solid.community/public/PubSubWithSet.html)
-- [PubSubWithAdd](https://doctorbud.solid.community/public/PubSubWithAdd.html)
+- [PubSubWithSet](https://doctorbud.solidcommunity.net/public/PubSubWithSet.html)
+- [PubSubWithAdd](https://doctorbud.solidcommunity.net/public/PubSubWithAdd.html)
 
 
-#### Demos from smartdown.solid.community
+#### Demos from smartdown.solidcommunity.net
 
-I try to keep the `doctorbud.solid.community` examples and experiments separate from the `smartdown.solid.community` ones, although there is some duplication. I have not (yet) verified that all of the examples at [smartdown.solid.community](https://smartdown.solid.community/public/) are compatible with my modifications to `databrowser.html`.
+I try to keep the `doctorbud.solidcommunity.net` examples and experiments separate from the `smartdown.solidcommunity.net` ones, although there is some duplication. I have not (yet) verified that all of the examples at [smartdown.solidcommunity.net](https://smartdown.solidcommunity.net/public/) are compatible with my modifications to `databrowser.html`.
 
-- [smartdown.solid.community](https://smartdown.solid.community/public/smartdown/#/public/Home.md)
-- [Querying Solid in Smartdown with Comunica](https://smartdown.solid.community/public/smartdown/#/public/SolidQueries.md)
-- [Smartdown using Solid via LDFlex](https://smartdown.solid.community/public/smartdown/#/public/SolidLDFlex.md)
-- [Smartdown/Solid Container Navigation](https://smartdown.solid.community/public/smartdown/#/public/SolidLDFlexContainer.md)
-- [Creating, Modifying, Deleting Solid Objects in Smartdown](https://smartdown.solid.community/public/smartdown/#/public/SolidLDFlexMutation.md)
-- [Smartdown/Solid PubSub](https://smartdown.solid.community/public/smartdown/#/public/SolidPubSub.md)
-- [Smartdown/Solid Crosswords](https://smartdown.solid.community/public/smartdown/#/public/SolidCrossword.md)
+- [smartdown.solidcommunity.net](https://smartdown.solidcommunity.net/public/smartdown/#/public/Home.md)
+- [Querying Solid in Smartdown with Comunica](https://smartdown.solidcommunity.net/public/smartdown/#/public/SolidQueries.md)
+- [Smartdown using Solid via LDFlex](https://smartdown.solidcommunity.net/public/smartdown/#/public/SolidLDFlex.md)
+- [Smartdown/Solid Container Navigation](https://smartdown.solidcommunity.net/public/smartdown/#/public/SolidLDFlexContainer.md)
+- [Creating, Modifying, Deleting Solid Objects in Smartdown](https://smartdown.solidcommunity.net/public/smartdown/#/public/SolidLDFlexMutation.md)
+- [Smartdown/Solid PubSub](https://smartdown.solidcommunity.net/public/smartdown/#/public/SolidPubSub.md)
+- [Smartdown/Solid Crosswords](https://smartdown.solidcommunity.net/public/smartdown/#/public/SolidCrossword.md)
 
 
 ---
 
-This document is sourced from https://doctorbud.solid.community/public/Home.md which may be viewed using `browse1Pane` via:
+This document is sourced from https://doctorbud.solidcommunity.net/public/Home.md which may be viewed using `browse1Pane` via:
 
-https://doctorbud.solid.community/public/?browse1=https://doctorbud.solid.community/public/Home.md
+https://doctorbud.solidcommunity.net/public/?browse1=https://doctorbud.solidcommunity.net/public/Home.md
 
 but may be rendered via a different Smartdown viewer within another site.

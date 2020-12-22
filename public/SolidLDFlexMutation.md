@@ -2,7 +2,7 @@
 
 In [Smartdown using Solid via LDFlex](:@/public/SolidLDFlex.md) and [Smartdown/Solid Container Navigation](:@/public/SolidLDFlexContainer.md) we explored some of the *read-only* possibilities using Smartdown, Solid, Sparql, and LDFlex. Here in this document, we'll look at the possibilities and mechanisms we can use to perform the other CRUD operations.
 
-In theory, any person viewing this document via https://smartdown.solid.community should be able to perform the operations of Deleting, Creating, and Adding edges to the resource [/public/scratch/example.ttl](https://doctorbud.solid.community/public/scratch/example.ttl). This is because I adjusted the ACL for `/public/scratch` to so that https://smartdown.solid.community is considered an Owner (in the `:ReadWriteControl` category of the `.acl`), with Read, Write and Control permissions.
+In theory, any person viewing this document via https://smartdown.solidcommunity.net should be able to perform the operations of Deleting, Creating, and Adding edges to the resource [/public/scratch/example.ttl](https://doctorbud.solidcommunity.net/public/scratch/example.ttl). This is because I adjusted the ACL for `/public/scratch` to so that https://smartdown.solidcommunity.net is considered an Owner (in the `:ReadWriteControl` category of the `.acl`), with Read, Write and Control permissions.
 
 ##### References
 
@@ -50,7 +50,7 @@ if (session) {
 var that = this;
 async function popupLogin() {
   let session = await solid.auth.currentSession();
-  let popupUri = 'https://solid.community/common/popup.html';
+  let popupUri = 'https://solidcommunity.net/common/popup.html';
   if (!session)
     session = await solid.auth.popupLogin({ popupUri });
     that.log(`Logged in as ${session.webId}`);
@@ -74,7 +74,7 @@ var that = this;
 async function login(idp) {
   const session = await solid.auth.currentSession();
   // The terminal / is necessary for /login redirect to work on
-  // solid.community. It's not necessary for local dev (but works fine).
+  // solidcommunity.net. It's not necessary for local dev (but works fine).
   // Beware of removing the slash.
   //
   let callback = window.location.origin + '/public/login/';
@@ -100,7 +100,7 @@ async function login(idp) {
   }
 }
 
-const result = login('https://doctorbud.solid.community');
+const result = login('https://doctorbud.solidcommunity.net');
 this.log(JSON.stringify(result, null, 2));
 ```
 
@@ -111,7 +111,7 @@ this.log(JSON.stringify(result, null, 2));
 ```javascript /playable/xautoplay/console
 //smartdown.import=https://cdn.jsdelivr.net/npm/solid-auth-client/dist-lib/solid-auth-client.bundle.js
 
-const resourceId = 'https://doctorbud.solid.community/public/scratch/example.ttl';
+const resourceId = 'https://doctorbud.solidcommunity.net/public/scratch/example.ttl';
 
 async function deleteDocument(location) {
   const options = {
@@ -146,7 +146,7 @@ smartdown.setVariable('DeletionResult', result);
 ```javascript /playable/xautoplay/console
 //smartdown.import=https://cdn.jsdelivr.net/npm/solid-auth-client/dist-lib/solid-auth-client.bundle.js
 
-const resourceId = 'https://doctorbud.solid.community/public/scratch/example.ttl';
+const resourceId = 'https://doctorbud.solidcommunity.net/public/scratch/example.ttl';
 
 async function createEmptyDocument(location) {
   const options = {
@@ -203,7 +203,7 @@ async function setNicknames(resourceId, nicknames) {
   await resource['http://xmlns.com/foaf/0.1/nick'].set(...nicknames.map(nickname => literal(nickname)));
 }
 
-const resourceId = 'https://doctorbud.solid.community/public/scratch/example.ttl';
+const resourceId = 'https://doctorbud.solidcommunity.net/public/scratch/example.ttl';
 const nicknames = [
   'that guy',
   'bud',
@@ -221,9 +221,9 @@ await setNicknames(resourceId, nicknames);
 
 #### View the final result
 
-The resulting `example.ttl` file is visible via [https://doctorbud.solid.community/public/scratch/example.ttl](https://doctorbud.solid.community/public/scratch/example.ttl)
+The resulting `example.ttl` file is visible via [https://doctorbud.solidcommunity.net/public/scratch/example.ttl](https://doctorbud.solidcommunity.net/public/scratch/example.ttl)
 
-or via the [LDFlex Playground](https://solid.github.io/ldflex-playground/#%5B'https%3A%2F%2Fdoctorbud.solid.community%2Fpublic%2Fscratch%2Fexample.ttl'%5D%5B'http%3A%2F%2Fxmlns.com%2Ffoaf%2F0.1%2Fnick'%5D)
+or via the [LDFlex Playground](https://solid.github.io/ldflex-playground/#%5B'https%3A%2F%2Fdoctorbud.solidcommunity.net%2Fpublic%2Fscratch%2Fexample.ttl'%5D%5B'http%3A%2F%2Fxmlns.com%2Ffoaf%2F0.1%2Fnick'%5D)
 
 ---
 

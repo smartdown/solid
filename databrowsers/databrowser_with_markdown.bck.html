@@ -184,9 +184,6 @@
           // saveConsoleLog('####filterlog', args[0], typeof args[0], args);
           // pass
         }
-        else if (arg0.indexOf('Failed to load') === 0) {
-          saveConsoleLog('###BREAK###');
-        }
         else {
           // saveConsoleLog('####!filterlog', args);
           saveConsoleLog(...args)
@@ -771,6 +768,38 @@ class="smartdown-container">
         return div
       }
 
+
+
+
+      // function myRunDataBrowser(targetURI) {
+      //   const kb = UI.store;  // context.session.store
+      //   console.log('myRunDataBrowser', targetURI);
+      //   // Set up cross-site proxy
+      //   kb.fetcher.crossSiteProxyTemplate = window.origin + '/xss/?uri={uri}'
+
+      //   // Authenticate the user
+      //   UI.authn.checkUser().then(function (profile) {
+      //     // Set up the view for the current subject
+      //     const uri = targetURI || window.location.href
+      //     const subject = kb.sym(uri)
+      //     const outliner = panes.getOutliner(document)
+      //     console.log('before GotoSubject', outliner, window.location.href);
+
+      //     // function GotoSubject(subject, expand, pane, solo, referrer, table) {
+
+      //     const table = document.getElementById('outline');
+      //     UI.utils.emptyNode(table)
+      //     table.style.width = '100%'
+
+      //     outliner.GotoSubject(subject, true, undefined, false, table)
+      //     console.log('after GotoSubject', window.location.href);
+
+      //     const header = null;  // initHeader(kb)
+      //     const footer = null;  // initFooter(kb, kb.fetcher)
+      //     return Promise.all([header, footer])
+      //   });
+      // }
+
       function myGotoSubject(browse1URIResolved, bookmarkURIResolved, outliner, adjustHistory, subject, expand, pane, solo, referrer, table) {
         const kb = UI.store;  // context.session.store
 
@@ -801,19 +830,29 @@ class="smartdown-container">
       }
 
       function handleBrowse1(browse1URI, adjustHistory) {
+        // console.log('handleBrowse1', browse1URI, adjustHistory);
         const href = window.location.href;
         window.document.title = 'Browse1: ' + href;
 
-        const hrefArgPos = href.indexOf('?');
-        const hrefNoArgs = hrefArgPos === -1 ? href : href.slice(0, hrefArgPos);
+        const browse1URIResolved = $rdf.uri.join(browse1URI, href);
 
-        const browse1URIResolved = $rdf.uri.join(browse1URI, hrefNoArgs);
+        // const browse1URIArgPos = browse1URI.indexOf('?');
+        // const browse1URINoArgs = browse1URI.slice(0, browse1URIArgPos + 1);
+        // const browse1URIResolved = $rdf.uri.join(browse1URI, href)
+        // const browse1URINoArgsResolved = $rdf.uri.join(browse1URINoArgs, href)
+        // console.log('href  ' + href)
+        // console.log('browse1URI  ' + browse1URI)
+        // console.log('browse1URINoArgs  ' + browse1URINoArgs)
+        // console.log('browse1URIResolved ' + browse1URIResolved)
+        // console.log('browse1URINoArgsResolved ' + browse1URINoArgsResolved)
 
         const params = new URLSearchParams(location.search)
         params.set('browse1', browse1URI);
         const bookmarkURI = decodeURIComponent(`${location.pathname}?${params}`);
         const bookmarkURIResolved = $rdf.uri.join(bookmarkURI, href)
         const bookmarkURINoArgs = decodeURIComponent(`${location.pathname}`);
+
+        // myRunDataBrowser(browse1URIResolved);
 
         const outliner = panes.getOutliner(document)
         outliner.saveGotoSubject = outliner.GotoSubject;
@@ -823,6 +862,7 @@ class="smartdown-container">
           outliner.GotoSubject = outliner.saveGotoSubject;
         }, 100);
       }
+      window.handleBrowse1 = handleBrowse1;
 
       // This needs to occur after mashlib has overriden the onpopstate
       // event.
@@ -877,11 +917,34 @@ class="smartdown-container">
             let result;
 
             if (subject.value.endsWith('.md')) {
-              result = renderCommon(subject, myDocument, true);
+              return renderCommon(subject, myDocument, true);
+              var div = myDocument.createElement('div')
+              var kb = UI.store;  // context.session.store
+
+              //  @@ When we can, use CSP to turn off scripts within the iframe
+              div.setAttribute('class', 'docView')
+              var iframe = myDocument.createElement('IFRAME')
+              iframe.setAttribute('src', subject.uri) // allow-same-origin
+              iframe.setAttribute('class', 'doc')
+
+              var cts = kb.fetcher.getHeader(subject.doc(), 'content-type')
+              var ct = cts ? cts[0] : null
+              if (ct) {
+                console.log('humanReadablePane: c-t:' + ct, subject.doc(), cts)
+              } else {
+                console.log('humanReadablePane: unknown content-type?', cts, subject.doc())
+              }
+
+              iframe.setAttribute('style', 'resize = both; height: 120em; width:80em;border:10px solid red;')
+              //        iframe.setAttribute('height', '480')
+              //        iframe.setAttribute('width', '640')
+              var tr = myDocument.createElement('TR')
+              tr.appendChild(iframe)
+              div.appendChild(tr)
+              result = div;
             }
             else {
               result = humanReadableSaved.render(subject, myDocument);
-              console.log('humanReadableSaved.render', subject.doc(), result);
             }
 
             return result;
@@ -979,6 +1042,7 @@ class="smartdown-container">
 
         let browse1 = new URLSearchParams(self.location.search).get("browse1")
         if (browse1) {
+          // console.log('handleBrowse1 due to ', self.location.search, browse1);
           handleBrowse1(browse1, true);
         }
         else {
@@ -1066,10 +1130,6 @@ class="smartdown-container">
       };
 
       function cardLoader(cardKey, outputDivId) {
-        // console.log('cardLoader', cardKey);
-        if (!cardKey.endsWith('.md')) {
-          cardKey += '.md';
-        }
         handleBrowse1(cardKey, true);
       };
 
@@ -1085,4 +1145,6 @@ class="smartdown-container">
     </script>
   </body>
 </html>
+
+
 

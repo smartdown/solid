@@ -192,7 +192,7 @@ digraph L0 {
 
 ---
 
-The source for this [Smartdown](https://smartdown.io) card is available at https://smartdown.solid.community/public/Graphviz.md and via [GitHub](https://github.com/smartdown/solid/blob/master/public/Graphviz.md).
+The source for this [Smartdown](https://smartdown.io) card is available at https://smartdown.solidcommunity.net/public/Graphviz.md and via [GitHub](https://github.com/smartdown/solid/blob/master/public/Graphviz.md).
 
 ---
 

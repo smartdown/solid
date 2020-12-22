@@ -6,7 +6,7 @@
 
 This repository is a tree of mostly Smartdown documents, and a pair of scripts to publish this tree to either a Solid POD or a GitHub Pages site.
 
-- The target POD: [https://smartdown.solid.community/](https://smartdown.solid.community/)
+- The target POD: [https://smartdown.solidcommunity.net/](https://smartdown.solidcommunity.net/)
 - The target GHPages site: [https://smartdown.github.io/solid/](https://smartdown.github.io/solid/)
 - More on Solid here: [https://www.solidproject.org](https://www.solidproject.org)
 - More on Smartdown here: [https://smartdown.io](https://smartdown.io)
@@ -25,7 +25,7 @@ The installation has been tested for the following configuration:
 
 ### Publish to Solid with a Script: publishToSolid.sh
 
-I wrote a `publishToSolid.sh` script that uses `curl` to upload relevant files to the https://smartdown.solid.community site. For security purposes, the `publishToSolid.connect.sid` file is NOT placed in Git, and it should be customized with your particular `connect.sid` value as per the instructions [here](https://github.com/megoth/solid-update-index-tutorial).
+I wrote a `publishToSolid.sh` script that uses `curl` to upload relevant files to the https://smartdown.solidcommunity.net site. For security purposes, the `publishToSolid.connect.sid` file is NOT placed in Git, and it should be customized with your particular `connect.sid` value as per the instructions [here](https://github.com/megoth/solid-update-index-tutorial).
 
 In addition, if you adapt `publishToSolid.sh` for your own purposes, you will want to edit the line beginning with `export base=`.
 

@@ -30,7 +30,7 @@ With Solid, I can store and edit the Smartdown docs in the context of Solid's PO
 
 #### Source for this project
 
-This particular Smartdown *card* is sourced from [Home.md](https://smartdown.solid.community/public/Home.md), which can be viewed (and edited, with suitable Solid permissions) in context at [Public](https://smartdown.solid.community/public/).
+This particular Smartdown *card* is sourced from [Home.md](https://smartdown.solidcommunity.net/public/Home.md), which can be viewed (and edited, with suitable Solid permissions) in context at [Public](https://smartdown.solidcommunity.net/public/).
 
 The entire source code for this project is available at [smartdown/solid](https://github.com/smartdown/solid/).
 
@@ -51,7 +51,7 @@ The examples below have been adapted slightly from the [Gallery](https://smartdo
 
 Smartdown allows us to have a card-at-a-time view (similar to Hypercard), but allows those cards to be fetched from arbitrary URLs. Let's see if we can *tunnel* to a different POD and then back again.
 
-[DoctorBud Home](:@https://doctorbud.solid.community/public/Home.md)
+[DoctorBud Home](:@https://doctorbud.solidcommunity.net/public/Home.md)
 
 
 

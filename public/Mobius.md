@@ -3,7 +3,8 @@
 
 A Mobius strip rendered with [P5JS](https://p5js.org) and made *reactive* via Smartdown cells and variables.
 
-```p5js/playable/autoplay
+```javascript /p5js/playable/autoplay
+const thisDiv = this.div;
 var PI = Math.PI;
 var HALF_PI = PI / 2.0;
 
@@ -18,7 +19,7 @@ var az = ay;
 var dx, dy, dz;
 
 p5.windowResized = function() {
-  p5.resizeCanvas(p5.windowWidth - 50, p5.windowHeight - 300);
+  p5.resizeCanvas(thisDiv.clientWidth - 5, thisDiv.clientHeight - 5);
 };
 
 p5.setup = function() {
@@ -64,7 +65,27 @@ p5.draw = function() {
 
 ---
 
-The source for this [Smartdown](https://smartdown.io) card is available at https://smartdown.solid.community/public/Mobius.md and via [GitHub](https://github.com/smartdown/solid/blob/master/public/Mobius.md).
+The source for this [Smartdown](https://smartdown.io) card is available at https://smartdown.solidcommunity.net/public/Mobius.md and via [GitHub](https://github.com/smartdown/solid/blob/master/public/Mobius.md).
+
+---
+
+The source for this [Smartdown](https://smartdown.io) card is available at https://smartdown.solidcommunity.net/public/Mobius.md and via [GitHub](https://github.com/smartdown/solid/blob/master/public/Mobius.md).
+
+---
+
+The source for this [Smartdown](https://smartdown.io) card is available at https://smartdown.solidcommunity.net/public/Mobius.md and via [GitHub](https://github.com/smartdown/solid/blob/master/public/Mobius.md).
+
+---
+
+The source for this [Smartdown](https://smartdown.io) card is available at https://smartdown.solidcommunity.net/public/Mobius.md and via [GitHub](https://github.com/smartdown/solid/blob/master/public/Mobius.md).
+
+---
+
+The source for this [Smartdown](https://smartdown.io) card is available at https://smartdown.solidcommunity.net/public/Mobius.md and via [GitHub](https://github.com/smartdown/solid/blob/master/public/Mobius.md).
+
+---
+
+The source for this [Smartdown](https://smartdown.io) card is available at https://smartdown.solidcommunity.net/public/Mobius.md and via [GitHub](https://github.com/smartdown/solid/blob/master/public/Mobius.md).
 
 ---
 
