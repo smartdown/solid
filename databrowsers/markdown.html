@@ -349,7 +349,55 @@
       return false;
     }
 
+    //
+    // Given an empty (div), create the necessary components within
+    // it to support markdown/smartdown rendering via (updateSmartdown).
+    //
+    function renderSmartdownDiv(div) {
+      smartdownIdCounter++;
+      var sdPreviewId = `smartdown-preview-${smartdownIdCounter}`;
+      var sdId = `smartdown-output-${smartdownIdCounter}`;
+      const params = new URLSearchParams(location.search);
+      const paramTheme = params.get('theme') || 'chat';
+      var sdDiv = `
+<div
+id="${sdPreviewId}"
+class="smartdown-outer-container smartdown-theme-${paramTheme}">
+<div
+id="${sdId}"
+class="smartdown-container">
+</div>
+</div>
+`;
+      div.innerHTML = sdDiv;
+
+      return sdId;
+    }
+
+    //
+    // Apply (plainText) to the markdown/smartdown (smartdownDivId)
+    //
+    function updateSmartdown(plainText, smartdownDivId) {
+      const smartdownDiv = document.getElementById(smartdownDivId);
+      smartdown.setSmartdown(plainText, smartdownDiv, function() {
+        smartdown.updateProcesses();
+        smartdown.startAutoplay(smartdownDiv);
+
+        // const ro = new ResizeObserver(entries => {
+        //   console.log('ResizeObserver', entries[0]);
+        //   console.log('easyMDE.codemirror.display.sizer', easyMDE.codemirror.display.sizer.clientHeight, easyMDE.codemirror.display.sizer.clientWidth);
+        //   console.log('easyMDE.codemirror.display.sizer', easyMDE.codemirror.display.sizer.offsetHeight, easyMDE.codemirror.display.sizer.offsetWidth);
+        //   console.log('smartdownDiv', smartdownDiv.clientHeight, smartdownDiv.clientWidth);
+        //   easyMDE.codemirror.display.sizer.style.height = '1000px'; // (smartdownDiv.clientHeight - 200) + 'px';
+        //   easyMDE.codemirror.display.sizer.style.width = (smartdownDiv.clientWidth - 200) + 'px';
+        // });
+
+        // ro.observe(smartdownDiv);
+      });
+    }
+
     function renderSmartdown(plainText, preview) {
+      console.log('renderSmartdown', plainText.slice(0, 20), preview, preview.innerHTML);
       if (preview.innerHTML === '') {
         smartdownIdCounter++;
         var sdPreviewId = `smartdown-preview-${smartdownIdCounter}`;
@@ -369,29 +417,32 @@ class="smartdown-container">
 
         function applySmartdown() {
           preview.smartdownDiv = document.getElementById(sdId);
+          console.log('applySmartdown', preview.smartdownDiv);
           // console.log('setSmartdown timeout', sdId, preview.smartdownDiv, preview.smartdownDiv.outerHTML, plainText.slice(0, 20));
           smartdown.setSmartdown(plainText, preview.smartdownDiv, function() {
             // console.log('setSmartdown timeout2', preview.smartdownDiv ? preview.smartdownDiv.id : 'NULL', plainText.slice(0, 20));
             smartdown.updateProcesses();
             smartdown.startAutoplay(preview.smartdownDiv);
 
-            const ro = new ResizeObserver(entries => {
-              console.log('ResizeObserver', entries[0]);
-              console.log('easyMDE.codemirror.display.sizer', easyMDE.codemirror.display.sizer.clientHeight, easyMDE.codemirror.display.sizer.clientWidth);
-              console.log('easyMDE.codemirror.display.sizer', easyMDE.codemirror.display.sizer.offsetHeight, easyMDE.codemirror.display.sizer.offsetWidth);
-              console.log('preview.smartdownDiv', preview.smartdownDiv.clientHeight, preview.smartdownDiv.clientWidth);
-              easyMDE.codemirror.display.sizer.style.height = '1000px'; // (preview.smartdownDiv.clientHeight - 200) + 'px';
-              easyMDE.codemirror.display.sizer.style.width = (preview.smartdownDiv.clientWidth - 200) + 'px';
-            });
+            // const ro = new ResizeObserver(entries => {
+            //   console.log('ResizeObserver', entries[0]);
+            //   console.log('easyMDE.codemirror.display.sizer', easyMDE.codemirror.display.sizer.clientHeight, easyMDE.codemirror.display.sizer.clientWidth);
+            //   console.log('easyMDE.codemirror.display.sizer', easyMDE.codemirror.display.sizer.offsetHeight, easyMDE.codemirror.display.sizer.offsetWidth);
+            //   console.log('preview.smartdownDiv', preview.smartdownDiv.clientHeight, preview.smartdownDiv.clientWidth);
+            //   easyMDE.codemirror.display.sizer.style.height = '1000px'; // (preview.smartdownDiv.clientHeight - 200) + 'px';
+            //   easyMDE.codemirror.display.sizer.style.width = (preview.smartdownDiv.clientWidth - 200) + 'px';
+            // });
 
-            // Observe the scrollingElement for when the window gets resized
-            ro.observe(preview.smartdownDiv);
+            // // Observe the scrollingElement for when the window gets resized
+            // ro.observe(preview.smartdownDiv);
           });
         }
+
+        console.log('smartdownIsLoaded', smartdownIsLoaded, smartdownIsLoadedTask, preview.smartdownDiv);
         if (smartdownIsLoaded) {
           setTimeout(() => {
             applySmartdown();
-          });
+          }, 1000);
         } else if (smartdownIsLoadedTask) {
           console.log('smartdownIsLoadedTask ALREADY set. Probably multiple Smartdown instances on this page and smartdownIsLoadedTask needs to become an array of handlers.');
         } else {
@@ -409,6 +460,116 @@ class="smartdown-container">
       } else {
         return null;
       }
+    }
+
+
+    function renderPreview(subject, myDocument) {
+      const kb = UI.store; // context.session.store
+      const ns = UI.ns
+      const fetcher = kb.fetcher
+      const editStyle = 'font-family: monospace; font-size: 100%; min-width:60em; margin: 1em 0.2em 1em 0.2em; padding: 1em; border: 0.1em solid #888; border-radius: 0.5em;'
+      var readonly = true
+      var editing = false
+      var broken = false
+      // Set in refresh()
+      var contentType, allowed, eTag // Note it when we read and use it when we save
+      const parseable = {
+        'text/n3': true,
+        'text/turtle': true,
+        'application/rdf+xml': true,
+        'application/xhtml+xml': true, // For RDFa?
+        // 'text/html': true,
+        // 'application/sparql-update': true,
+        'application/ld+json': true
+        // 'application/nquads' : true,
+        // 'application/n-quads' : true
+      }
+      var div = myDocument.createElement('div')
+      div.setAttribute('class', 'markdownPane')
+      var table = div.appendChild(myDocument.createElement('table'))
+      var main = table.appendChild(myDocument.createElement('tr'))
+      var statusRow = table.appendChild(myDocument.createElement('tr'))
+      var controls = table.appendChild(myDocument.createElement('tr'))
+      controls.setAttribute('style', 'text-align: right;')
+      var smartdownDiv = div.appendChild(myDocument.createElement('div'))
+      var smartdownDivId = renderSmartdownDiv(smartdownDiv);
+      console.log('smartdownDivId', smartdownDivId);
+
+      function happy(response, method) {
+        if (!response.ok) {
+          let msg = '!happy: HTTP error on ' + method + '! Status: ' + response.status
+          console.log(msg)
+          if (response.status === 412) msg = 'Error: File changed by someone else'
+          statusRow.appendChild(UI.widgets.errorMessageBlock(myDocument, msg))
+        }
+        return response.ok
+      }
+
+      function refresh() {
+        fetcher.webOperation('GET', subject.uri).then(function(response) {
+          if (!happy(response, 'GET')) return
+          var plainText = response.responseText;
+          console.log('plainText', plainText);
+
+          if (smartdownEnabled) {
+            updateSmartdown(plainText, smartdownDivId);
+          } else {
+            console.log('Plain markdown NYI');
+          }
+
+          // textArea.rows = plainText ? plainText.split('\n').length + 2 : 2
+          // textArea.cols = 80
+          // textArea.value = plainText
+          // easyMDE.value(plainText);
+          // setTimeout(function() {
+          //   // var size = easyMDE.codemirror.getScrollInfo();
+          //   // easyMDE.codemirror.setCursor(1, 1);
+          //   // easyMDE.codemirror.setSize('100%', '100%'); // size.width + 1, size.height + 1);
+          // }, 10)
+          // if (previewOnly) {
+          //   easyMDE.togglePreview();
+          // }
+          // setUnedited()
+          if (response.headers && response.headers.get('content-type')) {
+            contentType = response.headers.get('content-type') // Should work but headers may be empty
+            allowed = response.headers.get('allow')
+            eTag = response.headers.get('etag')
+          }
+          let reqs = kb.each(null, kb.sym('http://www.w3.org/2007/ont/link#requestedURI'), subject.uri)
+          reqs.forEach(req => {
+            let rrr = kb.any(req, kb.sym('http://www.w3.org/2007/ont/link#response'))
+            if (rrr) {
+              contentType = kb.anyValue(rrr, UI.ns.httph('content-type'))
+              allowed = kb.anyValue(rrr, UI.ns.httph('allow'))
+              eTag = kb.anyValue(rrr, UI.ns.httph('etag'))
+              if (!eTag) console.log('markdownPane: No eTag on GET')
+            }
+          })
+          // contentType = response.headers['content-type'] // Not available ?!
+          if (!contentType) {
+            readonly = true
+            broken = true
+            statusRow.appendChild(UI.widgets.errorMessageBlock(myDocument, 'Error: No content-type available!'))
+            return
+          }
+          // let allowed = response.headers['allow']
+          if (!allowed) {
+            console.log('@@@@@@@@@@ No Allow: header from this server')
+            readonly = false // better allow just in case
+          } else {
+            readonly = allowed.indexOf('PUT') < 0 // In future more info re ACL allow?
+          }
+          // textArea.readonly = readonly
+        }).catch(err => {
+          div.appendChild(UI.widgets.errorMessageBlock(myDocument, 'Error reading file: ' + err))
+        })
+      }
+
+
+      refresh()
+      console.log('div', div);
+      div.style.border = '5px solid red';
+      return div;
     }
 
     function buildEasyMDE(textArea, previewOnly) {
@@ -613,6 +774,10 @@ class="smartdown-container">
       }
       return easyMDE;
     }
+
+
+
+
     /**
      * Common code used by both Preview and Two-Pane edit mode.
      * Much of this is adapted from the default databrowser.html.
@@ -870,7 +1035,10 @@ class="smartdown-container">
         const myDocument = context.dom;
         let result;
         if (subject.value.endsWith('.md')) {
-          result = renderCommon(subject, myDocument, true);
+          result = renderPreview(subject, myDocument);
+          // result = humanReadableSaved.render(subject, context);
+          console.log('result');
+          console.log(result);
         } else {
           result = humanReadableSaved.render(subject, myDocument);
           console.log('humanReadableSaved.render', subject.doc(), result);

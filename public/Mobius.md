@@ -19,7 +19,10 @@ var az = ay;
 var dx, dy, dz;
 
 p5.windowResized = function() {
-  p5.resizeCanvas(thisDiv.clientWidth - 5, thisDiv.clientHeight - 5);
+  const newWidth = Math.floor(thisDiv.clientWidth * 0.9);
+  const newHeight = Math.floor(newWidth / 2);
+
+  p5.resizeCanvas(newWidth, newHeight);
 };
 
 p5.setup = function() {
