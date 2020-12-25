@@ -177,6 +177,20 @@
         .editor-preview-side.editor-preview.editor-preview-active-side {
         padding: 0 !important;
       }
+
+
+      .easymde-div .editor-toolbar.fullscreen {
+        top: 150px !important;
+        border: 1px solid red;
+      }
+
+      .easymde-div .CodeMirror-fullscreen {
+        top: 250px !important;
+      }
+
+      .easymde-div .editor-preview-side {
+        top: 250px !important;
+      }
     </style>
 
     <!--
@@ -351,9 +365,9 @@
 
     //
     // Given an empty (div), create the necessary components within
-    // it to support markdown/smartdown rendering via (updateSmartdown).
+    // it to support markdown/smartdown rendering via (updateMarkdown).
     //
-    function renderSmartdownDiv(div) {
+    function buildMarkdownDiv() {
       smartdownIdCounter++;
       var sdPreviewId = `smartdown-preview-${smartdownIdCounter}`;
       var sdId = `smartdown-output-${smartdownIdCounter}`;
@@ -369,16 +383,18 @@ class="smartdown-container">
 </div>
 </div>
 `;
-      div.innerHTML = sdDiv;
 
-      return sdId;
+      return {
+        id: sdId,
+        content: sdDiv,
+      };
     }
 
     //
-    // Apply (plainText) to the markdown/smartdown (smartdownDivId)
+    // Apply (plainText) to the markdown/smartdown (markdownDivId)
     //
-    function updateSmartdown(plainText, smartdownDivId) {
-      const smartdownDiv = document.getElementById(smartdownDivId);
+    function updateMarkdown(plainText, markdownDivId) {
+      const smartdownDiv = document.getElementById(markdownDivId);
       smartdown.setSmartdown(plainText, smartdownDiv, function() {
         smartdown.updateProcesses();
         smartdown.startAutoplay(smartdownDiv);
@@ -397,73 +413,44 @@ class="smartdown-container">
     }
 
     function renderSmartdown(plainText, preview) {
-      console.log('renderSmartdown', plainText.slice(0, 20), preview, preview.innerHTML);
+      console.log('renderSmartdown', plainText.slice(0, 20));
       if (preview.innerHTML === '') {
-        smartdownIdCounter++;
-        var sdPreviewId = `smartdown-preview-${smartdownIdCounter}`;
-        var sdId = `smartdown-output-${smartdownIdCounter}`;
-        const params = new URLSearchParams(location.search);
-        const paramTheme = params.get('theme') || 'chat';
-        var sdDiv = `
-<div
-id="${sdPreviewId}"
-class="smartdown-outer-container smartdown-theme-${paramTheme}">
-<div
-id="${sdId}"
-class="smartdown-container">
-</div>
-</div>
-`;
-
-        function applySmartdown() {
-          preview.smartdownDiv = document.getElementById(sdId);
-          console.log('applySmartdown', preview.smartdownDiv);
-          // console.log('setSmartdown timeout', sdId, preview.smartdownDiv, preview.smartdownDiv.outerHTML, plainText.slice(0, 20));
-          smartdown.setSmartdown(plainText, preview.smartdownDiv, function() {
-            // console.log('setSmartdown timeout2', preview.smartdownDiv ? preview.smartdownDiv.id : 'NULL', plainText.slice(0, 20));
-            smartdown.updateProcesses();
-            smartdown.startAutoplay(preview.smartdownDiv);
-
-            // const ro = new ResizeObserver(entries => {
-            //   console.log('ResizeObserver', entries[0]);
-            //   console.log('easyMDE.codemirror.display.sizer', easyMDE.codemirror.display.sizer.clientHeight, easyMDE.codemirror.display.sizer.clientWidth);
-            //   console.log('easyMDE.codemirror.display.sizer', easyMDE.codemirror.display.sizer.offsetHeight, easyMDE.codemirror.display.sizer.offsetWidth);
-            //   console.log('preview.smartdownDiv', preview.smartdownDiv.clientHeight, preview.smartdownDiv.clientWidth);
-            //   easyMDE.codemirror.display.sizer.style.height = '1000px'; // (preview.smartdownDiv.clientHeight - 200) + 'px';
-            //   easyMDE.codemirror.display.sizer.style.width = (preview.smartdownDiv.clientWidth - 200) + 'px';
-            // });
-
-            // // Observe the scrollingElement for when the window gets resized
-            // ro.observe(preview.smartdownDiv);
-          });
-        }
+        const divInfo = buildMarkdownDiv();
+        const markdownDivId = divInfo.id;
+        const markdownDivContent = divInfo.content;
+        preview.innerHTML = markdownDivContent;
+        preview.markdownDivId = markdownDivId;
 
         console.log('smartdownIsLoaded', smartdownIsLoaded, smartdownIsLoadedTask, preview.smartdownDiv);
         if (smartdownIsLoaded) {
           setTimeout(() => {
-            applySmartdown();
+            updateMarkdown(plainText, markdownDivId);
           }, 1000);
         } else if (smartdownIsLoadedTask) {
           console.log('smartdownIsLoadedTask ALREADY set. Probably multiple Smartdown instances on this page and smartdownIsLoadedTask needs to become an array of handlers.');
         } else {
           console.log('smartdownIsLoadedTask set');
-          smartdownIsLoadedTask = applySmartdown;
+          smartdownIsLoadedTask = function() {
+            updateMarkdown(plainText, markdownDivId);
+          };
         }
-        return sdDiv;
-      } else if (preview.smartdownDiv) {
-        console.log('setSmartdown preview', preview.smartdownDiv ? preview.smartdownDiv.id : 'NULL');
-        applySmartdown();
+        return markdownDivContent;
+      }
+      else if (preview.markdownDivId) {
+        console.log('setSmartdown preview', preview.markdownDivId);
+        updateMarkdown(plainText, preview.markdownDivId);
         // smartdown.setSmartdown(plainText, preview.smartdownDiv, function() {
         //   smartdown.startAutoplay(preview.smartdownDiv);
         // });
         return null;
-      } else {
-        return null;
+      }
+      else {
+        console.log('setSmartdown null markdownDivId', preview);
       }
     }
 
 
-    function renderPreview(subject, myDocument) {
+    function renderHumanReadable(subject, myDocument) {
       const kb = UI.store; // context.session.store
       const ns = UI.ns
       const fetcher = kb.fetcher
@@ -492,8 +479,10 @@ class="smartdown-container">
       var controls = table.appendChild(myDocument.createElement('tr'))
       controls.setAttribute('style', 'text-align: right;')
       var smartdownDiv = div.appendChild(myDocument.createElement('div'))
-      var smartdownDivId = renderSmartdownDiv(smartdownDiv);
-      console.log('smartdownDivId', smartdownDivId);
+      const divInfo = buildMarkdownDiv();
+      const markdownDivId = divInfo.id;
+      const markdownDivContent = divInfo.content;
+      smartdownDiv.innerHTML = markdownDivContent;
 
       function happy(response, method) {
         if (!response.ok) {
@@ -512,24 +501,11 @@ class="smartdown-container">
           console.log('plainText', plainText);
 
           if (smartdownEnabled) {
-            updateSmartdown(plainText, smartdownDivId);
+            updateMarkdown(plainText, markdownDivId);
           } else {
             console.log('Plain markdown NYI');
           }
 
-          // textArea.rows = plainText ? plainText.split('\n').length + 2 : 2
-          // textArea.cols = 80
-          // textArea.value = plainText
-          // easyMDE.value(plainText);
-          // setTimeout(function() {
-          //   // var size = easyMDE.codemirror.getScrollInfo();
-          //   // easyMDE.codemirror.setCursor(1, 1);
-          //   // easyMDE.codemirror.setSize('100%', '100%'); // size.width + 1, size.height + 1);
-          // }, 10)
-          // if (previewOnly) {
-          //   easyMDE.togglePreview();
-          // }
-          // setUnedited()
           if (response.headers && response.headers.get('content-type')) {
             contentType = response.headers.get('content-type') // Should work but headers may be empty
             allowed = response.headers.get('allow')
@@ -565,10 +541,7 @@ class="smartdown-container">
         })
       }
 
-
       refresh()
-      console.log('div', div);
-      div.style.border = '5px solid red';
       return div;
     }
 
@@ -754,7 +727,11 @@ class="smartdown-container">
       if (previewOnly) {
         options.toolbar = false;
         options.status = false;
-      } else {}
+      }
+      else {
+        //
+      }
+
       easyMDE = new EasyMDE(options);
       if (previewOnly) {
         // console.log(easyMDE);
@@ -776,13 +753,8 @@ class="smartdown-container">
     }
 
 
-
-
-    /**
-     * Common code used by both Preview and Two-Pane edit mode.
-     * Much of this is adapted from the default databrowser.html.
-     */
-    function renderCommon(subject, myDocument, previewOnly) {
+    function renderEasyMDE(subject, context, previewOnly) {
+      const myDocument = context.dom;
       const kb = UI.store; // context.session.store
       const ns = UI.ns
       const fetcher = kb.fetcher
@@ -806,9 +778,9 @@ class="smartdown-container">
       var div = myDocument.createElement('div')
       div.setAttribute('class', 'markdownPane')
       var table = div.appendChild(myDocument.createElement('table'))
-      var main = table.appendChild(myDocument.createElement('tr'))
       var statusRow = table.appendChild(myDocument.createElement('tr'))
       var controls = table.appendChild(myDocument.createElement('tr'))
+      var main = table.appendChild(myDocument.createElement('tr'))
       controls.setAttribute('style', 'text-align: right;')
       var textAreaDiv = main.appendChild(myDocument.createElement('div'))
       textAreaDiv.setAttribute('class', 'easymde-div')
@@ -822,11 +794,11 @@ class="smartdown-container">
       var cancelButton = controls.appendChild(UI.widgets.cancelButton(myDocument))
       var saveButton = controls.appendChild(UI.widgets.continueButton(myDocument))
       var myEditButton = controls.appendChild(editButton(myDocument))
-      if (previewOnly) {
-        cancelButton.style.display = 'none';
-        saveButton.style.display = 'none';
-        myEditButton.style.display = 'none';
-      }
+      // if (previewOnly) {
+      //   cancelButton.style.display = 'none';
+      //   saveButton.style.display = 'none';
+      //   myEditButton.style.display = 'none';
+      // }
 
       function setUnedited() {
         if (broken) return
@@ -1021,6 +993,7 @@ class="smartdown-container">
       };
       panes.register(rootPane);
 
+
       const humanReadable = panes.byName('source');
       const humanReadableSaved = Object.assign({}, humanReadable);
       humanReadable.icon = UI.icons.originalIconBase + 'tango/22-text-html.png';
@@ -1035,7 +1008,7 @@ class="smartdown-container">
         const myDocument = context.dom;
         let result;
         if (subject.value.endsWith('.md')) {
-          result = renderPreview(subject, myDocument);
+          result = renderHumanReadable(subject, myDocument);
           // result = humanReadableSaved.render(subject, context);
           console.log('result');
           console.log(result);
@@ -1045,6 +1018,7 @@ class="smartdown-container">
         }
         return result;
       };
+
 
       const markdownPane = {
         icon: 'https://upload.wikimedia.org/wikipedia/commons/4/48/Markdown-mark.svg',
@@ -1080,7 +1054,6 @@ class="smartdown-container">
             newPaneOptions.newInstance = newInstance
           }
           var contentType = mimeLookup(newInstance.uri)
-          console.log('mimeLookup', newInstance.uri, contentType)
           if (!contentType || (contentType !== 'text/plain') || !newInstance.uri.endsWith('.md')) {
             let msg = 'A new markdown file has be text/plain with an extension .md'
             alert(msg)
@@ -1098,8 +1071,7 @@ class="smartdown-container">
           })
         },
         render: function(subject, context) {
-          const myDocument = context.dom;
-          return renderCommon(subject, myDocument, false);
+          return renderEasyMDE(subject, context, false);
         }
       };
       panes.register(markdownPane);
