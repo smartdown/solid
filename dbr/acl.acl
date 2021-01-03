@@ -1,0 +1,18 @@
+@prefix : <#>.
+@prefix n0: <http://www.w3.org/ns/auth/acl#>.
+@prefix dbm: <./>.
+@prefix c: </profile/card#>.
+@prefix n1: <http://xmlns.com/foaf/0.1/>.
+
+:ControlReadWrite
+    a n0:Authorization;
+    n0:accessTo dbm:;
+    n0:agent c:me, <mailto:dan@quantumclay.com>;
+    n0:default dbm:;
+    n0:mode n0:Control, n0:Read, n0:Write.
+:Read
+    a n0:Authorization;
+    n0:accessTo dbm:;
+    n0:agentClass n1:Agent;
+    n0:default dbm:;
+    n0:mode n0:Read.

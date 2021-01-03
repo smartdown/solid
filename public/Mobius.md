@@ -1,5 +1,5 @@
 
-### P5JS Mobius Examplecccc,,
+### P5JS Mobius Example
 
 A Mobius strip rendered with [P5JS](https://p5js.org) and made *reactive* via Smartdown cells and variables.
 

@@ -1,4 +1,4 @@
-### Welcome to Smartdown on Solidccccc
+### Welcome to Smartdown on Solid
 
 This is an experiment that stores [Smartdown](https://smartdown.io) documents in a [Solid](https://solid.github.io/information/) POD, and enables those documents to be rendered via a Smartdown viewer app that is hosted on the same POD. The source for this project is at [smartdown/solid](https://github.com/smartdown/solid).
 

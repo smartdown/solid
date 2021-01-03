@@ -22,6 +22,7 @@
 <body
   id="smartdown-outer-container"
   class="smartdown-outer-container smartdown-theme-blog">
+
   <div
     class="smartdown-container"
     id="smartdown-output">
@@ -30,11 +31,6 @@
   <script src="https://unpkg.com/smartdown/dist/lib/calc_handlers.js"></script>
   <script src="https://unpkg.com/smartdown/dist/lib/starter.js"></script>
   <!-- <script src="/public/smartdown/starter.js"></script> -->
-
-<!--
-  <script src="https://localhost:4000/lib/calc_handlers.js"></script>
-  <script src="https://localhost:4000/lib/starter.js"></script>
- -->
 
   <script>
     /* eslint-disable */
@@ -57,6 +53,7 @@
       return sourceText;
     };
 
+    console.log('invoking starter');
     window.smartdownStarter();
   </script>
 </body>

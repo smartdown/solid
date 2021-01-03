@@ -2,20 +2,32 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Data Browser with Markdown, Smartdown, and More</title>
-    <link href="/mash.css"
-      rel="stylesheet">
-    <!-- Markdown/EasyMDE stuff -->
-    <link href="https://unpkg.com/easymde/dist/easymde.min.css"
+    <title>Custom Data Browser With Root</title>
+
+    <link href="/mash.css" rel="stylesheet">
+
+    <!--
+      Markdown/EasyMDE stuff
+    -->
+    <link href="https://unpkg.com/easymde@2.8.0/dist/easymde.min.css"
       rel="stylesheet" />
-    <!-- Smartdown stuff. Comment out to disable Smartdown -->
+
+    <!--
+      Smartdown stuff. Comment out to disable Smartdown
+    -->
     <link rel=stylesheet
       href="https://unpkg.com/smartdown/dist/lib/smartdown.css">
     <link rel=stylesheet
       href="https://unpkg.com/smartdown/dist/lib/fonts.css">
-    <style> /*
-       * Styles to make Data Browser a slight bit more responsive and usable
-       * in narrower-width windows.
+
+    <!--
+      Override mash.css styles to make Data Browser a slight bit
+      more responsive and usable in narrower-width windows.
+    -->
+    <style>
+      /*
+       * Override mash.css styles to make Data Browser a slight bit
+       * more responsive and usable in narrower-width windows.
        */
 
       .header-user-menu__navigation-menu {
@@ -26,29 +38,24 @@
         padding: 4px 5px 0 5px;
       }
       .header-banner__icon {
-        height: 30px;
+        height: 35px;
+        width: 35px;
       }
       .header-user-menu__trigger {
+        height: 35px;
+        width: 35px;
+        padding: 0;
+      }
+      .header-user-menu__photo {
         height: 30px;
+        width: 30px;
       }
 
       .sharingPane {
-        margin: 0;
-        padding: 0;
       }
       .sharingPane > div {
-        margin: 0;
-        padding: 0;
+        margin: 5px;
       }
-      .sharingPane > div > table {
-        font-size: unset !important;
-        margin: 0 !important;
-        padding: 0 !important;
-      }
-      .sharingPane > div > table > tr:first-child > div {
-        padding: 0 !important;
-      }
-
 
       .instancePane {
       }
@@ -58,9 +65,12 @@
       .instancePane > table td.pred {
         min-width: 1em !important;
         width: 1em !important;
-        xborder: 1px solid lavender;
       }
       .instancePane > table td.obj {
+      }
+
+      .instancePane .internalPane {
+        margin: 0 10px;
       }
 
       .sourcePane {
@@ -101,13 +111,15 @@
         overflow-y: visible !important;
       }
     </style>
-    <style> /* Styles for Markdown/EasyMDE */
 
+    <!--
+      Styles for Markdown/EasyMDE/CodeMirror
+    -->
+    <style>
       .markdownPane {
         width: auto !important;
         margin: 0 !important;
-        padding: 5px 20px !important;
-        padding: 0 !important;
+        padding: 5px 10px !important;
       }
       .markdownPane > table {
         margin: 0 !important;
@@ -131,16 +143,23 @@
       .editor-preview {
         background: #fbfbfe;
       }
+
       .smartdown-outer-container {
         background: #fbfbfe !important;
-        /*width: 100%;*/
+        width: 100%;
+        padding: 0;
+        margin: 0;
+      }
+
+      .smartdown-container {
+        padding: 0;
+        margin: 0;
       }
 
       div.CodeMirror-scroll {
-        margin: -10px;
+        margin: 0 -2px;
         min-height: 100px !important;
         width: 100%;
-        padding: 5px 10px !important;
       }
       .markdownPane > table > tr > .easymde-div .CodeMirror.cm-s-easymde.CodeMirror-wrap {
         width: 100%;
@@ -151,8 +170,26 @@
         .editor-preview-full.editor-preview.editor-preview-active {
         padding: 5px 10px !important;
       }
+      .markdownPane > table > tr > .easymde-div
+        .editor-preview-side.editor-preview.editor-preview-active-side {
+        padding: 5px 15px !important;
+      }
 
+      .CodeMirror-vscrollbar {
+        overflow: hidden !important;
+      }
 
+      .easymde-div .editor-toolbar.fullscreen {
+        top: 150px !important;
+      }
+
+      .easymde-div .CodeMirror-fullscreen {
+        top: 210px !important;
+      }
+
+      .easymde-div .editor-preview-side {
+        top: 210px !important;
+      }
     </style>
 
     <!--
@@ -160,49 +197,125 @@
       verbosity of the Solid UI, which eases debugging via the console
     -->
     <script>
+    console.log('Filtering SolidOS Noisy Logging');
     const saveConsoleLog = console.log;
-    const filterPrefixes = ['** Pod owner ', 'preventBrowserDropEvents called', 'Icon base is', '@@@ widgets', 'setCredentials', 'logIn', '(Logged in', 'Unique quadstore initialized', 'registering pane', ];
+    const filterPrefixes = [
+      '** Pod owner ',
+      'preventBrowserDropEvents called',
+      'Icon base is',
+      '@@@ widgets',
+      'setCredentials',
+      'logIn',
+      '(Logged in',
+      'Unique quadstore initialized',
+      'registering pane',
+    ];
     console.log = function log() {
-      const args = arguments;
-      const arg0 = typeof args[0] === 'string' ? args[0].trim() : '';
+      const arg0 = typeof arguments[0] === 'string' ? arguments[0].trim() : '';
       if (filterPrefixes.find(element => arg0.indexOf(element) >= 0)) {
-        // saveConsoleLog('####filterlog', args[0], typeof args[0], args);
+        // saveConsoleLog('####filterlog', arguments[0], typeof arguments[0], arguments);
         // pass
       } else if (arg0.indexOf('Failed to load') === 0) {
         saveConsoleLog('###BREAK###');
       } else {
-        // saveConsoleLog('####!filterlog', args);
-        saveConsoleLog(...args)
+        // saveConsoleLog('####!filterlog', arguments);
+        saveConsoleLog(...arguments);
       }
     };
     </script>
+    <script type="text/javascript" src="/mashlib.min.js"></script>
 
-  </head>
-
-  <body class="db-layout">
-    <!-- solid-panes' OutlineManager injects into this element -->
-    <header class="db-layout__header header"
-      id="PageHeader"></header>
-    <div class="TabulatorOutline db-layout__content"
-      id="DummyUUID"
-      role="main">
-      <table id="outline"></table>
-      <div id="GlobalDashboard"></div>
-    </div>
-    <footer class="db-layout__footer"
-      id="PageFooter"></footer>
-    <script type="text/javascript"
-      src="/mashlib.min.js"></script>
-    <!-- EasyMDE JS needed for both Markdown and Smartdown -->
+    <!--
+      EasyMDE JS needed for both Markdown and Smartdown
+    -->
     <script src="https://unpkg.com/easymde@2.8.0/dist/easymde.min.js"></script>
-    <!-- Smartdown stuff can be commented out to disable Smartdown -->
+
+    <!--
+      Smartdown stuff can be commented out to disable Smartdown
+    -->
     <script src="https://unpkg.com/smartdown/dist/lib/smartdown.js"></script>
     <script src="https://unpkg.com/smartdown/dist/lib/calc_handlers.js"></script>
+
     <!--
         This script assumes that mashlib has been loaded and creates
         additional panes before invoking the Data Browser via runDataBrowser().
     -->
     <script>
+    function myGotoSubject(rootURIResolved, bookmarkURIResolved, outliner, adjustHistory, subject, expand, pane, solo, referrer, table) {
+      const kb = UI.store; // context.session.store
+      const resolvedSubject = kb.sym(rootURIResolved);
+
+      const myTable = document.getElementById('outline');
+      UI.utils.emptyNode(myTable)
+      myTable.style.width = '100%'
+      outliner.GotoSubject = outliner.saveGotoSubject;
+      outliner.GotoSubject(resolvedSubject, expand, pane, false, referrer, table);
+      if (adjustHistory) {
+        setTimeout(() => {
+          const stateObj = pane ? { paneName: pane.name } : {};
+          try {
+            // can fail if different origin
+            if (window.location.href.endsWith(bookmarkURIResolved)) {
+              // console.log('pushState IGNORE', window.location.href, bookmarkURIResolved);
+            } else {
+              // console.log('pushState DOIT', window.location.href, bookmarkURIResolved);
+              document.defaultView.history.pushState(stateObj, bookmarkURIResolved, bookmarkURIResolved)
+            }
+          } catch (e) {
+            console.log(e)
+          }
+        }, 100);
+      }
+    }
+
+    function handleRoot(rootURI, adjustHistory) {
+      const href = window.location.href;
+      window.document.title = 'Root: ' + href;
+      const hrefArgPos = href.indexOf('?');
+      const hrefNoArgs = hrefArgPos === -1 ? href : href.slice(0, hrefArgPos);
+      const rootURIResolved = $rdf.uri.join(rootURI, hrefNoArgs);
+      // console.log('handleRoot', rootURI, href, hrefNoArgs, rootURIResolved);
+      const params = new URLSearchParams(location.search)
+      params.set('root', rootURI);
+      const bookmarkURI = decodeURIComponent(`${location.pathname}?${params}`);
+      const bookmarkURIResolved = $rdf.uri.join(bookmarkURI, href)
+      const bookmarkURINoArgs = decodeURIComponent(`${location.pathname}`);
+      const outliner = panes.getOutliner(document)
+      outliner.saveGotoSubject = outliner.GotoSubject;
+      outliner.GotoSubject = myGotoSubject.bind(outliner, rootURIResolved, bookmarkURIResolved, outliner, adjustHistory);
+      panes.runDataBrowser();
+      window.setTimeout(() => {
+        outliner.GotoSubject = outliner.saveGotoSubject;
+      }, 100);
+    }
+
+    //
+    // This needs to occur after mashlib has overriden the onpopstate event.
+    // This code tries to work-around the default Outliner behavior when the
+    // user goes 'back' in their history and the Outliner adds an unnecessary
+    // extra outline level.
+    //
+    const savePopState = window.onpopstate;
+    window.onpopstate = (event) => {
+      const eventRoot = event.state ? event.state.root : '';
+      const searchRoot = new URLSearchParams(window.location.search).get('root')
+
+      if (searchRoot) {
+        handleRoot(searchRoot, false);
+      } else if (eventRoot) {
+        // console.log('...handleRoot eventRoot', eventRoot);
+        // handleRoot(eventRoot);
+      } else {
+        document.outline.saveGotoSubject($rdf.sym(window.document.location.href), true, undefined, true, undefined)
+        // savePopState(event);
+      }
+    };
+  </script>
+
+  <!--
+    Add support for Markdown/Smartdown and the EasyMDE/CodeMirror editor
+  -->
+  <script>
     // Allow panes to be added dynamically
     // https://github.com/solid/solid-panes/issues/103
     //
@@ -232,6 +345,8 @@
       'text': 'text/plain',
     }
 
+    let easyMDE = null;
+
     function mimeLookup(uri) {
       const extIndex = uri.lastIndexOf('.');
       if (extIndex >= 0) {
@@ -243,14 +358,17 @@
       return false;
     }
 
-    function renderSmartdown(plainText, preview) {
-      if (preview.innerHTML === '') {
-        smartdownIdCounter++;
-        var sdPreviewId = `smartdown-preview-${smartdownIdCounter}`;
-        var sdId = `smartdown-output-${smartdownIdCounter}`;
-        const params = new URLSearchParams(location.search);
-        const paramTheme = params.get('theme') || 'chat';
-        var sdDiv = `
+    //
+    // Given an empty (div), create the necessary components within
+    // it to support markdown/smartdown rendering via (updateMarkdown).
+    //
+    function buildMarkdownDiv() {
+      smartdownIdCounter++;
+      var sdPreviewId = `smartdown-preview-${smartdownIdCounter}`;
+      var sdId = `smartdown-output-${smartdownIdCounter}`;
+      const params = new URLSearchParams(location.search);
+      const paramTheme = params.get('theme') || 'chat';
+      var sdDiv = `
 <div
 id="${sdPreviewId}"
 class="smartdown-outer-container smartdown-theme-${paramTheme}">
@@ -261,47 +379,171 @@ class="smartdown-container">
 </div>
 `;
 
-        function applySmartdown() {
-          preview.smartdownDiv = document.getElementById(sdId);
-          // console.log('setSmartdown timeout', sdId, preview.smartdownDiv, preview.smartdownDiv.outerHTML, plainText.slice(0, 20));
-          smartdown.setSmartdown(plainText, preview.smartdownDiv, function() {
-            // console.log('setSmartdown timeout2', preview.smartdownDiv ? preview.smartdownDiv.id : 'NULL', plainText.slice(0, 20));
-            smartdown.updateProcesses();
-            smartdown.startAutoplay(preview.smartdownDiv);
-          });
-        }
+      return {
+        id: sdId,
+        content: sdDiv,
+      };
+    }
+
+    //
+    // Apply (plainText) to the markdown/smartdown (markdownDivId)
+    //
+    function updateMarkdown(plainText, markdownDivId) {
+      const smartdownDiv = document.getElementById(markdownDivId);
+      smartdown.setSmartdown(plainText, smartdownDiv, function() {
+        smartdown.updateProcesses();
+        smartdown.startAutoplay(smartdownDiv);
+
+        // const ro = new ResizeObserver(entries => {
+        //   console.log('ResizeObserver', entries[0]);
+        //   console.log('easyMDE.codemirror.display.sizer', easyMDE.codemirror.display.sizer.clientHeight, easyMDE.codemirror.display.sizer.clientWidth);
+        //   console.log('easyMDE.codemirror.display.sizer', easyMDE.codemirror.display.sizer.offsetHeight, easyMDE.codemirror.display.sizer.offsetWidth);
+        //   console.log('smartdownDiv', smartdownDiv.clientHeight, smartdownDiv.clientWidth);
+        //   easyMDE.codemirror.display.sizer.style.height = '1000px'; // (smartdownDiv.clientHeight - 200) + 'px';
+        //   easyMDE.codemirror.display.sizer.style.width = (smartdownDiv.clientWidth - 200) + 'px';
+        // });
+
+        // ro.observe(smartdownDiv);
+      });
+    }
+
+    function renderSmartdown(plainText, preview) {
+      if (preview.innerHTML === '') {
+        const divInfo = buildMarkdownDiv();
+        const markdownDivId = divInfo.id;
+        const markdownDivContent = divInfo.content;
+        preview.innerHTML = markdownDivContent;
+        preview.markdownDivId = markdownDivId;
+
         if (smartdownIsLoaded) {
           setTimeout(() => {
-            applySmartdown();
-          });
+            updateMarkdown(plainText, markdownDivId);
+          }, 1000);
         } else if (smartdownIsLoadedTask) {
           console.log('smartdownIsLoadedTask ALREADY set. Probably multiple Smartdown instances on this page and smartdownIsLoadedTask needs to become an array of handlers.');
         } else {
-          console.log('smartdownIsLoadedTask set');
-          smartdownIsLoadedTask = applySmartdown;
+          smartdownIsLoadedTask = function() {
+            updateMarkdown(plainText, markdownDivId);
+          };
         }
-        return sdDiv;
-      } else if (preview.smartdownDiv) {
-        console.log('setSmartdown preview', preview.smartdownDiv ? preview.smartdownDiv.id : 'NULL');
-        smartdown.setSmartdown(plainText, preview.smartdownDiv, function() {
-          smartdown.startAutoplay(preview.smartdownDiv);
-        });
-        return null;
-      } else {
+        return markdownDivContent;
+      }
+      else if (preview.markdownDivId) {
+        updateMarkdown(plainText, preview.markdownDivId);
+        // smartdown.setSmartdown(plainText, preview.smartdownDiv, function() {
+        //   smartdown.startAutoplay(preview.smartdownDiv);
+        // });
         return null;
       }
+      else {
+        console.log('setSmartdown null markdownDivId', preview);
+      }
+    }
+
+
+    function renderHumanReadable(subject, myDocument) {
+      const kb = UI.store; // context.session.store
+      const ns = UI.ns
+      const fetcher = kb.fetcher
+      const editStyle = 'font-family: monospace; font-size: 100%; min-width:60em; margin: 1em 0.2em 1em 0.2em; padding: 1em; border: 0.1em solid #888; border-radius: 0.5em;'
+      var readonly = true
+      var editing = false
+      var broken = false
+      // Set in refresh()
+      var contentType, allowed, eTag // Note it when we read and use it when we save
+      const parseable = {
+        'text/n3': true,
+        'text/turtle': true,
+        'application/rdf+xml': true,
+        'application/xhtml+xml': true, // For RDFa?
+        // 'text/html': true,
+        // 'application/sparql-update': true,
+        'application/ld+json': true
+        // 'application/nquads' : true,
+        // 'application/n-quads' : true
+      }
+      var div = myDocument.createElement('div')
+      div.setAttribute('class', 'markdownPane')
+      var table = div.appendChild(myDocument.createElement('table'))
+      var main = table.appendChild(myDocument.createElement('tr'))
+      var statusRow = table.appendChild(myDocument.createElement('tr'))
+      var controls = table.appendChild(myDocument.createElement('tr'))
+      controls.setAttribute('style', 'text-align: right;')
+      var smartdownDiv = div.appendChild(myDocument.createElement('div'))
+      const divInfo = buildMarkdownDiv();
+      const markdownDivId = divInfo.id;
+      const markdownDivContent = divInfo.content;
+      smartdownDiv.innerHTML = markdownDivContent;
+
+      function happy(response, method) {
+        if (!response.ok) {
+          let msg = '!happy: HTTP error on ' + method + '! Status: ' + response.status
+          console.log(msg)
+          if (response.status === 412) msg = 'Error: File changed by someone else'
+          statusRow.appendChild(UI.widgets.errorMessageBlock(myDocument, msg))
+        }
+        return response.ok
+      }
+
+      function refresh() {
+        fetcher.webOperation('GET', subject.uri).then(function(response) {
+          if (!happy(response, 'GET')) return
+          var plainText = response.responseText;
+
+          if (smartdownEnabled) {
+            updateMarkdown(plainText, markdownDivId);
+          } else {
+            console.log('Plain markdown NYI');
+          }
+
+          if (response.headers && response.headers.get('content-type')) {
+            contentType = response.headers.get('content-type') // Should work but headers may be empty
+            allowed = response.headers.get('allow')
+            eTag = response.headers.get('etag')
+          }
+          let reqs = kb.each(null, kb.sym('http://www.w3.org/2007/ont/link#requestedURI'), subject.uri)
+          reqs.forEach(req => {
+            let rrr = kb.any(req, kb.sym('http://www.w3.org/2007/ont/link#response'))
+            if (rrr) {
+              contentType = kb.anyValue(rrr, UI.ns.httph('content-type'))
+              allowed = kb.anyValue(rrr, UI.ns.httph('allow'))
+              eTag = kb.anyValue(rrr, UI.ns.httph('etag'))
+              if (!eTag) console.log('markdownPane: No eTag on GET')
+            }
+          })
+          // contentType = response.headers['content-type'] // Not available ?!
+          if (!contentType) {
+            readonly = true
+            broken = true
+            statusRow.appendChild(UI.widgets.errorMessageBlock(myDocument, 'Error: No content-type available!'))
+            return
+          }
+          // let allowed = response.headers['allow']
+          if (!allowed) {
+            console.log('@@@@@@@@@@ No Allow: header from this server')
+            readonly = false // better allow just in case
+          } else {
+            readonly = allowed.indexOf('PUT') < 0 // In future more info re ACL allow?
+          }
+          // textArea.readonly = readonly
+        }).catch(err => {
+          div.appendChild(UI.widgets.errorMessageBlock(myDocument, 'Error reading file: ' + err))
+        })
+      }
+
+      refresh()
+      return div;
     }
 
     function buildEasyMDE(textArea, previewOnly) {
       // https://github.com/Ionaru/easy-markdown-editor#configuration
-      let easyMDE = null;
       let options = {
         element: textArea,
         previewRender: function(plainText, preview) { // Async method
-          if (!smartdownEnabled) {
-            return EasyMDE.prototype.markdown(plainText);
-          } else {
+          if (smartdownEnabled) {
             return renderSmartdown(plainText, preview);
+          } else {
+            return EasyMDE.prototype.markdown(plainText);
           }
         },
         spellChecker: false,
@@ -475,9 +717,22 @@ class="smartdown-container">
       if (previewOnly) {
         options.toolbar = false;
         options.status = false;
-      } else {}
+      }
+      else {
+        //
+      }
+
       easyMDE = new EasyMDE(options);
-      if (previewOnly) {} else {
+      if (previewOnly) {
+        // console.log(easyMDE);
+        // console.log(easyMDE.codemirror.display.sizer);
+        // console.log(easyMDE.codemirror.display.sizer.style['margin-left']);
+        // console.log(easyMDE.codemirror.display.sizer.style['margin-right']);
+        // console.log(easyMDE.codemirror.display.sizer.style['min-height']);
+        // console.log(easyMDE.codemirror.display.sizer.style['padding-right']);
+        // console.log(easyMDE.codemirror.display.sizer.style['padding-bottom']);
+      }
+      else {
         easyMDE.codemirror.on('change', function() {
           const latest = easyMDE.value();
           easyMDE.setEdited();
@@ -486,12 +741,10 @@ class="smartdown-container">
       }
       return easyMDE;
     }
-    /**
-     * Common code used by both Preview and Two-Pane edit mode.
-     * Much of this is adapted from the default databrowser.html.
-     */
-    function renderCommon(subject, myDocument, previewOnly) {
-      // console.log('renderCommon', subject, myDocument, previewOnly);
+
+
+    function renderEasyMDE(subject, context, previewOnly) {
+      const myDocument = context.dom;
       const kb = UI.store; // context.session.store
       const ns = UI.ns
       const fetcher = kb.fetcher
@@ -515,10 +768,10 @@ class="smartdown-container">
       var div = myDocument.createElement('div')
       div.setAttribute('class', 'markdownPane')
       var table = div.appendChild(myDocument.createElement('table'))
-      var main = table.appendChild(myDocument.createElement('tr'))
       var statusRow = table.appendChild(myDocument.createElement('tr'))
       var controls = table.appendChild(myDocument.createElement('tr'))
-      controls.setAttribute('style', 'text-align: right;')
+      var main = table.appendChild(myDocument.createElement('tr'))
+      controls.setAttribute('style', 'text-align: right; max-height: 40px !important; height: 40px !important; padding: 0;')
       var textAreaDiv = main.appendChild(myDocument.createElement('div'))
       textAreaDiv.setAttribute('class', 'easymde-div')
       var textArea = textAreaDiv.appendChild(myDocument.createElement('textarea'))
@@ -531,11 +784,11 @@ class="smartdown-container">
       var cancelButton = controls.appendChild(UI.widgets.cancelButton(myDocument))
       var saveButton = controls.appendChild(UI.widgets.continueButton(myDocument))
       var myEditButton = controls.appendChild(editButton(myDocument))
-      if (previewOnly) {
-        cancelButton.style.display = 'none';
-        saveButton.style.display = 'none';
-        myEditButton.style.display = 'none';
-      }
+
+      cancelButton.setAttribute('style', 'vertical-align: top; margin: 0; padding: 0;')
+      saveButton.setAttribute('style', 'vertical-align: top; margin: 0; padding: 0;')
+      myEditButton.setAttribute('style', 'vertical-align: top; margin: 0; padding: 0;')
+
 
       function setUnedited() {
         if (broken) return
@@ -697,90 +950,44 @@ class="smartdown-container">
       refresh(!previewOnly)
       return div
     }
+  </script>
 
-    function myGotoSubject(browse1URIResolved, bookmarkURIResolved, outliner, adjustHistory, subject, expand, pane, solo, referrer, table) {
-      const kb = UI.store; // context.session.store
-      const resolvedSubject = kb.sym(browse1URIResolved);
-      console.log('myGotoSubject', outliner, resolvedSubject, subject, expand, pane, solo, referrer, table);
-      const myTable = document.getElementById('outline');
-      UI.utils.emptyNode(myTable)
-      myTable.style.width = '100%'
-      outliner.GotoSubject = outliner.saveGotoSubject;
-      outliner.GotoSubject(resolvedSubject, expand, pane, false, referrer, table);
-      if (adjustHistory) {
-        setTimeout(() => {
-          const stateObj = pane ? { paneName: pane.name } : {}
-          try {
-            // can fail if different origin
-            if (window.location.href.endsWith(bookmarkURIResolved)) {
-              // console.log('pushState IGNORE', window.location.href, bookmarkURIResolved);
-            } else {
-              // console.log('pushState DOIT', window.location.href, bookmarkURIResolved);
-              document.defaultView.history.pushState(stateObj, bookmarkURIResolved, bookmarkURIResolved)
-            }
-          } catch (e) {
-            console.log(e)
-          }
-        }, 100);
-      }
-    }
 
-    function handleBrowse1(browse1URI, adjustHistory) {
-      const href = window.location.href;
-      window.document.title = 'Browse1: ' + href;
-      const hrefArgPos = href.indexOf('?');
-      const hrefNoArgs = hrefArgPos === -1 ? href : href.slice(0, hrefArgPos);
-      const browse1URIResolved = $rdf.uri.join(browse1URI, hrefNoArgs);
-      const params = new URLSearchParams(location.search)
-      params.set('browse1', browse1URI);
-      const bookmarkURI = decodeURIComponent(`${location.pathname}?${params}`);
-      const bookmarkURIResolved = $rdf.uri.join(bookmarkURI, href)
-      const bookmarkURINoArgs = decodeURIComponent(`${location.pathname}`);
-      const outliner = panes.getOutliner(document)
-      outliner.saveGotoSubject = outliner.GotoSubject;
-      outliner.GotoSubject = myGotoSubject.bind(outliner, browse1URIResolved, bookmarkURIResolved, outliner, adjustHistory);
-      panes.runDataBrowser();
-      window.setTimeout(() => {
-        outliner.GotoSubject = outliner.saveGotoSubject;
-      }, 100);
-    }
-    // This needs to occur after mashlib has overriden the onpopstate
-    // event.
-    // window.addEventListener('popstate', (event) => {
-    const savePopState = window.onpopstate;
-    window.onpopstate = (event) => {
-      const eventBrowse1 = event.state ? event.state.browse1 : '';
-      const searchBrowse1 = new URLSearchParams(window.location.search).get('browse1')
-      // console.log('es1: ' + document.location + ', state: ' + JSON.stringify(event.state) + ' history: ' + JSON.stringify(history.state));
-      // console.log('es2', eventBrowse1, searchBrowse1);
-      if (searchBrowse1) {
-        console.log('...handleBrowse1 searchBrowse1', searchBrowse1);
-        handleBrowse1(searchBrowse1, false);
-      } else if (eventBrowse1) {
-        // console.log('...handleBrowse1 eventBrowse1', eventBrowse1);
-        // handleBrowse1(eventBrowse1);
-      } else {
-        // window.history.replaceState({}, '', location.pathname);
-        console.log('...ignore', event.state, document.location.href, window.location.search, location.pathname);
-        document.outline.saveGotoSubject($rdf.sym(window.document.location.href), true, undefined, true, undefined)
-        // savePopState(event);
-      }
-    };
+  <!--
+    Install any additional panes after the DOM has been loaded.
+  -->
+  <script>
     document.addEventListener('DOMContentLoaded', function() {
-      if (window.markdownCustomizationsLoaded) {
-        console.log('###DOMContentLoaded return');
-        return;
-      }
+      //
+      // Add a new pane called 'root' that provides a button
+      // the can be used to open the databrowser to a particular node,
+      //
+      const rootPane = {
+        icon: 'https://upload.wikimedia.org/wikipedia/commons/b/b5/Media_Viewer_Icon_-_Zoom_In.svg',
+        name: 'root',
+        label: function(subject, context) {
+          return 'Root';
+        },
+        render: function(subject, context) {
+          const myDocument = context.dom;
+          window.setTimeout(() => {
+            const root = subject.value;
+            handleRoot(subject.value, true);
+          }, 1);
+          const div = myDocument.createElement('div')
+          div.setAttribute('style', 'margin: 40px 0; padding: 30px; border-radius: 10px; border: 10px solid lightblue; background: lightyellow;')
+          const h3 = div.appendChild(myDocument.createElement('h3'));
+          h3.innerHTML = `Loading...<br>&nbsp;${subject.value}`;
+          return div;
+        }
+      };
+      panes.register(rootPane);
 
-      window.markdownCustomizationsLoaded = true;
-      console.log('###DOMContentLoaded install');
 
       const humanReadable = panes.byName('source');
-      console.log('humanReadable', humanReadable);
       const humanReadableSaved = Object.assign({}, humanReadable);
       humanReadable.icon = UI.icons.originalIconBase + 'tango/22-text-html.png';
       humanReadable.label = function(subject, context) {
-        console.log('humanReadable.label', subject, context);
         if (subject.value.endsWith('.md')) {
           return 'Markdown';
         } else {
@@ -788,23 +995,23 @@ class="smartdown-container">
         }
       };
       humanReadable.render = function(subject, context) {
-        console.log('humanReadable.render', subject, context);
         const myDocument = context.dom;
         let result;
         if (subject.value.endsWith('.md')) {
-          result = renderCommon(subject, myDocument, true);
+          result = renderHumanReadable(subject, myDocument);
+          // result = humanReadableSaved.render(subject, context);
         } else {
-          result = humanReadableSaved.render(subject, myDocument);
           console.log('humanReadableSaved.render', subject.doc(), result);
+          result = humanReadableSaved.render(subject, myDocument);
         }
         return result;
       };
+
 
       const markdownPane = {
         icon: 'https://upload.wikimedia.org/wikipedia/commons/4/48/Markdown-mark.svg',
         name: 'markdown',
         label: function(subject, context) {
-          console.log('markdownPane.label', subject, context);
           const kb = UI.store; // context.session.store
           const ns = UI.ns
           var typeURIs = kb.findTypeURIs(subject)
@@ -835,7 +1042,6 @@ class="smartdown-container">
             newPaneOptions.newInstance = newInstance
           }
           var contentType = mimeLookup(newInstance.uri)
-          console.log('mimeLookup', newInstance.uri, contentType)
           if (!contentType || (contentType !== 'text/plain') || !newInstance.uri.endsWith('.md')) {
             let msg = 'A new markdown file has be text/plain with an extension .md'
             alert(msg)
@@ -853,45 +1059,21 @@ class="smartdown-container">
           })
         },
         render: function(subject, context) {
-          const myDocument = context.dom;
-          return renderCommon(subject, myDocument, false);
+          return renderEasyMDE(subject, context, false);
         }
       };
       panes.register(markdownPane);
-      console.log('after register markdownPane', panes.byName('markdown'));
-      const browse1Pane = {
-        icon: 'https://upload.wikimedia.org/wikipedia/commons/b/b5/Media_Viewer_Icon_-_Zoom_In.svg',
-        name: 'browse1',
-        label: function(subject, context) {
-          return 'Browse1';
-        },
-        render: function(subject, context) {
-          const myDocument = context.dom;
-          window.setTimeout(() => {
-            const browse1 = subject.value;
-            handleBrowse1(subject.value, true);
-          }, 1);
-          const div = myDocument.createElement('div')
-          div.setAttribute('style', 'margin: 40px 0; padding: 30px; border-radius: 10px; border: 10px solid lightblue; background: lightyellow;')
-          const h3 = div.appendChild(myDocument.createElement('h3'));
-          h3.innerHTML = `Loading...<br>&nbsp;${subject.value}`;
-          return div;
-        }
-      };
-      panes.register(browse1Pane);
-      let browse1 = new URLSearchParams(self.location.search).get("browse1")
-      if (browse1) {
-        handleBrowse1(browse1, true);
-      } else {
-        console.log('hb1', window.location.origin + window.location.pathname);
-        handleBrowse1(window.location.origin + window.location.pathname, false);
-        // panes.runDataBrowser();
-        // const outliner = panes.getOutliner(document)
-        // console.log('after RDB', outliner);
-        // window.outliner = outliner;
-      }
+
+      //
+      // See if we already have a 'root' URL argument and use that
+      // as the root node.
+      // Otherwise, use '/' as the root node.
+      //
+      let root = new URLSearchParams(self.location.search).get("root") || '/';
+      handleRoot(root, true);
     });
     </script>
+
     <script>
     function smartdownStarter(basePrefix, relativeCardLoader, doneHandler) {
       var defaultHome = 'https://unpkg.com/smartdown-gallery/Home.md';
@@ -955,11 +1137,24 @@ class="smartdown-container">
     };
 
     function cardLoader(cardKey, outputDivId) {
-      // console.log('cardLoader', cardKey);
       if (!cardKey.endsWith('.md')) {
         cardKey += '.md';
       }
-      handleBrowse1(cardKey, true);
+
+      const searchRoot = new URLSearchParams(window.location.search).get('root')
+      if (cardKey.indexOf('http') === -1) {
+        if (searchRoot) {
+          const pathElements = searchRoot.split('/').slice(0, -1)
+          console.log('pathElements', cardKey, searchRoot, pathElements);
+          cardKey = pathElements.join('/') + '/' + cardKey;
+          console.log('...', cardKey);
+        }
+        else {
+          cardKey = '/public/' + cardKey;
+          console.log('/public/', cardKey);
+        }
+      }
+      handleRoot(cardKey, true);
     };
 
     function doneHandler() {
@@ -969,8 +1164,25 @@ class="smartdown-container">
         smartdownIsLoadedTask();
       }
     }
-    smartdownStarter(null, cardLoader, doneHandler);
+
+    if (smartdownEnabled) {
+      smartdownStarter(null, cardLoader, doneHandler);
+    }
     </script>
+  </head>
+
+  <body class="db-layout">
+    <!-- solid-panes' OutlineManager injects into this element -->
+    <header class="db-layout__header header"
+      id="PageHeader"></header>
+    <div class="TabulatorOutline db-layout__content"
+      id="DummyUUID"
+      role="main">
+      <table id="outline"></table>
+      <div id="GlobalDashboard"></div>
+    </div>
+    <footer class="db-layout__footer"
+      id="PageFooter"></footer>
   </body>
 
 </html>

@@ -58,9 +58,15 @@ upload() {
 	elif [ ${extensionLC} == "png" ]
 	then
 		mimeType="image/png"
+	elif [ ${extensionLC} == "acl" ]
+	then
+		mimeType="text/turtle"
 	elif [ ${extensionLC} == "css" ]
 	then
 		mimeType="text/css"
+	elif [ ${extensionLC} == "js" ]
+	then
+		mimeType="text/javascript"
 	else
 		echo "# Unknown extension type: '${extensionLC}'"
 	fi
@@ -106,17 +112,22 @@ then
 	# delete index.html
 	# delete public/index.html
 	# delete public/smartdown/index.html
+	# delete public/smartdown/smartdown.html
+	# delete public/smartdown
+	# delete public/smartdown_starter_solid.js
+	# delete public/smartdown/starter.js
 
 	# upload PubSubWithAdd.html public/PubSubWithAdd.html
 	# upload PubSubWithSet.html public/PubSubWithSet.html
-	# upload ../smartdown/src/starter.js public/smartdown/starter.js
-	# upload public/smartdown/index_solid.html public/smartdown/index.html
 	# upload indexSmartdownRoot.html index.html
-	# upload databrowsers/root.html dbr/index.html
-	upload databrowsers/markdown.html dbm/index.html
-	upload public/HomeDoctorBud.md public/Home.md
+	# upload public/smartdown/index.html public/smartdown/index.html
+	upload dbm/index.html dbm/index.html
+	# upload dbm/acl.acl dbm/.acl
+	# upload dbr/index.html dbr/index.html
+	# upload dbr/acl.acl dbr/.acl
+	# upload public/HomeDoctorBud.md public/Home.md
 	# upload public/D3.md
-	upload public/Mobius.md
+	# upload public/Mobius.md
 	# upload public/P5JS.md
 
 	exit

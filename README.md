@@ -35,3 +35,19 @@ In addition, if you adapt `publishToSolid.sh` for your own purposes, you will wa
 I wrote a `publishToGitHub.sh` script that creates a `dist/` directory, populates it with a heirarchy of files, and then pushes the tree to GitHub in a `gh-pages` branch. GitHub will then serve up these files via `https://smartdown.github.io/solid/`.
 
 
+
+## Custom Databrowsers and Panes for SolidOS
+
+
+### Related Issues
+
+Allow panes to be added dynamically:
+
+https://github.com/solid/solid-panes/issues/103
+
+Keep an eye on this, use of globals like UI will break.
+
+https://github.com/solid/solid-ui/pull/64
+
+Changing from dom to context
+https://github.com/solid/solid-panes/pull/199

@@ -125,7 +125,7 @@
       }
     };
     </script>
-    <script type="text/javascript" src="/mashlib.min.js"></script>
+    <script type="text/javascript" src="/mashlib.js"></script>
 
 
     <!--
@@ -136,12 +136,14 @@
     function myGotoSubject(rootURIResolved, bookmarkURIResolved, outliner, adjustHistory, subject, expand, pane, solo, referrer, table) {
       const kb = UI.store; // context.session.store
       const resolvedSubject = kb.sym(rootURIResolved);
-      console.log('myGotoSubject', outliner, resolvedSubject, subject, expand, pane, solo, referrer, table);
+      console.log('dbr myGotoSubject', outliner, resolvedSubject, subject, expand, pane, solo, referrer, table);
       const myTable = document.getElementById('outline');
       UI.utils.emptyNode(myTable)
       myTable.style.width = '100%'
       outliner.GotoSubject = outliner.saveGotoSubject;
-      outliner.GotoSubject(resolvedSubject, expand, pane, false, referrer, table);
+      // expand = false;
+      // solo = false;
+      outliner.GotoSubject(resolvedSubject, expand, pane, solo, referrer, table);
       if (adjustHistory) {
         setTimeout(() => {
           const stateObj = pane ? { paneName: pane.name } : {};
@@ -175,6 +177,12 @@
       outliner.saveGotoSubject = outliner.GotoSubject;
       outliner.GotoSubject = myGotoSubject.bind(outliner, rootURIResolved, bookmarkURIResolved, outliner, adjustHistory);
       panes.runDataBrowser();
+
+      console.log('setLevel');
+      UI.log.setLevel(63);
+      UI.log.debug('setLevel(63)');
+
+
       window.setTimeout(() => {
         outliner.GotoSubject = outliner.saveGotoSubject;
       }, 100);
@@ -251,6 +259,12 @@
   </head>
 
   <body class="db-layout">
+    <div
+      id="status"
+      style="font-size: 0.8em; border: 2px solid lightblue; max-height: 150px; overflow-y: auto;">
+      STATUS
+    </div>
+
     <!-- solid-panes' OutlineManager injects into this element -->
     <header class="db-layout__header header"
       id="PageHeader"></header>
